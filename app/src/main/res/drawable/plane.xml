@@ -1,0 +1,33 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- الكرة الأرضية -->
+    <path
+        android:fillColor="#B3E5FC"
+        android:pathData="M50,0A50,50 0 1,0 50,100A50,50 0 1,0 50,0Z" />
+    <path
+        android:strokeColor="#81D4FA"
+        android:strokeWidth="2"
+        android:pathData="M0,50H100M50,0V100M25,0A25,50 0 0,0 75,100M75,0A25,50 0 0,1 25,100" />
+
+    <!-- الطائرة -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,45L70,55C71,55.5 71,56.5 70,57L50,65L52,70L48,72L45,65L28,58C27.5,57 27.5,56 28,55Z" />
+
+    <!-- الجناحين -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M50,55L60,50L62,52L52,58Z" />
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M40,50L30,45L32,43L42,48Z" />
+
+    <!-- النوافذ -->
+    <path
+        android:fillColor="#0D47A1"
+        android:pathData="M45,48h2v2h-2zM49,49h2v2h-2zM53,50h2v2h-2z" />
+</vector>

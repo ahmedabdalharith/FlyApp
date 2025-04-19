@@ -1,0 +1,1895 @@
+kotlin version: 2.0.21
+error message: org.jetbrains.kotlin.backend.common.BackendException: Backend Internal error: Exception during IR lowering
+File being compiled: C:/Users/ZBOOK/AndroidStudioProjects/FlyApp/app/src/main/java/com/example/flyapp/ui/theme/screens/WelcomeScreen.kt
+The root cause org.jetbrains.kotlin.backend.common.CompilationException was thrown at: java.base/java.util.ArrayList$Itr.next(Unknown Source)
+	at org.jetbrains.kotlin.backend.common.CodegenUtil.reportBackendException(CodegenUtil.kt:253)
+	at org.jetbrains.kotlin.backend.common.CodegenUtil.reportBackendException$default(CodegenUtil.kt:236)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invokeSequential(performByIrFile.kt:65)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invoke(performByIrFile.kt:52)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invoke(performByIrFile.kt:38)
+	at org.jetbrains.kotlin.backend.common.phaser.NamedCompilerPhase.phaseBody(CompilerPhase.kt:166)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.CompositePhase.invoke(PhaseBuilders.kt:27)
+	at org.jetbrains.kotlin.backend.common.phaser.CompositePhase.invoke(PhaseBuilders.kt:14)
+	at org.jetbrains.kotlin.backend.common.phaser.NamedCompilerPhase.phaseBody(CompilerPhase.kt:166)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.CompilerPhaseKt.invokeToplevel(CompilerPhase.kt:62)
+	at org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory.invokeLowerings(JvmIrCodegenFactory.kt:358)
+	at org.jetbrains.kotlin.codegen.CodegenFactory.generateModule(CodegenFactory.kt:46)
+	at org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory.generateModuleInFrontendIRMode(JvmIrCodegenFactory.kt:433)
+	at org.jetbrains.kotlin.cli.jvm.compiler.pipeline.JvmCompilerPipelineKt.generateCodeFromIr(jvmCompilerPipeline.kt:246)
+	at org.jetbrains.kotlin.cli.jvm.compiler.pipeline.JvmCompilerPipelineKt.compileModulesUsingFrontendIrAndLightTree(jvmCompilerPipeline.kt:142)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecute(K2JVMCompiler.kt:148)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecute(K2JVMCompiler.kt:43)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:103)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:49)
+	at org.jetbrains.kotlin.cli.common.CLITool.exec(CLITool.kt:101)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.runCompiler(IncrementalJvmCompilerRunner.kt:464)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.runCompiler(IncrementalJvmCompilerRunner.kt:73)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.doCompile(IncrementalCompilerRunner.kt:506)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileImpl(IncrementalCompilerRunner.kt:423)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$9$compile(IncrementalCompilerRunner.kt:249)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:267)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:120)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:675)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:92)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1660)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Unknown Source)
+	at java.base/java.security.AccessController.doPrivileged(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(Unknown Source)
+	at java.base/java.security.AccessController.doPrivileged(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: org.jetbrains.kotlin.backend.common.CompilationException: Back-end: Please report this problem https://kotl.in/issue
+C:/Users/ZBOOK/AndroidStudioProjects/FlyApp/app/src/main/java/com/example/flyapp/ui/theme/screens/WelcomeScreen.kt:1:1
+Problem with `class WelcomeScreenKt {
+  @Composable
+  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+  fun WelcomeScreen(navController: NavHostController, /* var */ $composer: Composer?, $changed: Int) {
+    { // BLOCK
+      $composer = $composer.startRestartGroup(key = -1862881056)
+      sourceInformation(composer = $composer, sourceInformation = "C(WelcomeScreen)62@2766L7081:WelcomeScreen.kt#1c6iix")
+    }
+    val $dirty: Int = $changed
+    when {
+      EQEQ(arg0 = $changed.and(other = 6), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changedInstance(value = navController) -> 4
+        else -> 2
+      })
+    }
+    when {
+      when {
+        EQEQ(arg0 = $dirty.and(other = 3), arg1 = 2).not() -> true
+        else -> $composer.<get-skipping>().not()
+      } -> { // BLOCK
+        when {
+          isTraceInProgress() -> traceEventStart(key = -1862881056, dirty1 = $dirty, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.WelcomeScreen (WelcomeScreen.kt:60)")
+        }
+        Box(modifier = #Companion.fillMaxSize().background(brush = #Companion.verticalGradient-8A-3gB4(colors = listOf<Color>(elements = { // BLOCK
+          val tmp0: Array<out Color> = arrayOfNulls<Color>(size = 3)
+          tmp0.set(index = 0, value = Color(color = 4278202437L))
+          tmp0.set(index = 1, value = Color(color = 4278209856L))
+          tmp0.set(index = 2, value = Color(color = 4278214756L))
+          tmp0
+        }))), contentAlignment = // COMPOSITE {
+        null
+        // }, propagateMinConstraints = // COMPOSITE {
+        false
+        // }, content = { // BLOCK
+          @Composable
+          @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+          local fun BoxScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+            { // BLOCK
+              sourceInformationMarkerStart(composer = $composer, key = -773078745, sourceInformation = "C76@3211L25,77@3245L18,80@3297L6544:WelcomeScreen.kt#1c6iix")
+              // COMPOSITE {
+              ParticleEffectContainer($composer = $composer, $changed = 0)
+              InteractiveWaves($composer = $composer, $changed = 0)
+              { // BLOCK
+                val tmp0_modifier: Modifier = #Companion.fillMaxSize().padding-3ABfNKs(all = 24.<get-dp>())
+                val tmp1_horizontalAlignment: Horizontal = #Companion.<get-CenterHorizontally>()
+                val tmp2_verticalArrangement: HorizontalOrVertical = #INSTANCE.<get-SpaceBetween>()
+                Column(modifier = tmp0_modifier, verticalArrangement = tmp2_verticalArrangement, horizontalAlignment = tmp1_horizontalAlignment, content = { // BLOCK
+                  @Composable
+                  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                  local fun ColumnScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                    { // BLOCK
+                      sourceInformationMarkerStart(composer = $composer, key = 1095119891, sourceInformation = "C88@3596L1601,135@5261L3853,227@9178L653:WelcomeScreen.kt#1c6iix")
+                      // COMPOSITE {
+                      { // BLOCK
+                        val tmp0_horizontalAlignment: Horizontal = #Companion.<get-CenterHorizontally>()
+                        val tmp1_modifier: Modifier = #Companion.padding-qDBjuR0(, top = 40.<get-dp>())
+                        Column(modifier = tmp1_modifier, verticalArrangement = // COMPOSITE {
+                        null
+                        // }, horizontalAlignment = tmp0_horizontalAlignment, content = { // BLOCK
+                          @Composable
+                          @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                          local fun ColumnScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                            { // BLOCK
+                              sourceInformationMarkerStart(composer = $composer, key = 1660875265, sourceInformation = "C92@3761L196,99@3975L40,101@4033L269,109@4320L41,112@4423L760:WelcomeScreen.kt#1c6iix")
+                              // COMPOSITE {
+                              Text--4IGK_g(text = "WELCOME ABOARD", modifier = // COMPOSITE {
+                              null
+                              // }, color = #Companion.getWhite-0d7_KjU(), fontSize = 32.<get-sp>(), fontStyle = // COMPOSITE {
+                              null
+                              // }, fontWeight = #Companion.<get-Bold>(), fontFamily = // COMPOSITE {
+                              null
+                              // }, letterSpacing = // COMPOSITE {
+                              <unsafe-coerce><Long, TextUnit>(v = 0L)
+                              // }, textDecoration = // COMPOSITE {
+                              null
+                              // }, textAlign = // COMPOSITE {
+                              null
+                              // }, lineHeight = // COMPOSITE {
+                              <unsafe-coerce><Long, TextUnit>(v = 0L)
+                              // }, overflow = // COMPOSITE {
+                              <unsafe-coerce><Int, TextOverflow>(v = 0)
+                              // }, softWrap = // COMPOSITE {
+                              false
+                              // }, maxLines = // COMPOSITE {
+                              0
+                              // }, minLines = // COMPOSITE {
+                              0
+                              // }, onTextLayout = // COMPOSITE {
+                              null
+                              // }, style = // COMPOSITE {
+                              null
+                              // }, $composer = $composer, $changed = 200070, $changed1 = 0, $default = 131026)
+                              Spacer(modifier = #Companion.height-3ABfNKs(height = 8.<get-dp>()), $composer = $composer, $changed = 6)
+                              Text--4IGK_g(text = "YOUR JOURNEY BEGINS HERE", modifier = // COMPOSITE {
+                              null
+                              // }, color = copy-wmQWz5c(arg0 = #Companion.getWhite-0d7_KjU(), alpha = 0.8F), fontSize = 16.<get-sp>(), fontStyle = // COMPOSITE {
+                              null
+                              // }, fontWeight = #Companion.<get-Medium>(), fontFamily = // COMPOSITE {
+                              null
+                              // }, letterSpacing = 1.<get-sp>(), textDecoration = // COMPOSITE {
+                              null
+                              // }, textAlign = // COMPOSITE {
+                              null
+                              // }, lineHeight = // COMPOSITE {
+                              <unsafe-coerce><Long, TextUnit>(v = 0L)
+                              // }, overflow = // COMPOSITE {
+                              <unsafe-coerce><Int, TextOverflow>(v = 0)
+                              // }, softWrap = // COMPOSITE {
+                              false
+                              // }, maxLines = // COMPOSITE {
+                              0
+                              // }, minLines = // COMPOSITE {
+                              0
+                              // }, onTextLayout = // COMPOSITE {
+                              null
+                              // }, style = // COMPOSITE {
+                              null
+                              // }, $composer = $composer, $changed = 12782982, $changed1 = 0, $default = 130898)
+                              Spacer(modifier = #Companion.height-3ABfNKs(height = 24.<get-dp>()), $composer = $composer, $changed = 6)
+                              Row(modifier = #Companion.fillMaxWidth(), horizontalArrangement = #INSTANCE.<get-Center>(), verticalAlignment = // COMPOSITE {
+                              null
+                              // }, content = { // BLOCK
+                                @Composable
+                                @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                                local fun RowScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                                  { // BLOCK
+                                    sourceInformationMarkerStart(composer = $composer, key = 583633006, sourceInformation = "C120@4775L35,116@4587L245,123@4854L40,129@5107L36,125@4916L249:WelcomeScreen.kt#1c6iix")
+                                    // COMPOSITE {
+                                    AuthButton-FNF3uiM(text = "LOGIN", icon = #INSTANCE.<get-Default>().<get-Info>(), color = Color(color = 4280391411L), onClick = { // BLOCK
+                                      { // BLOCK
+                                        $composer.startReplaceGroup(key = 2097042326)
+                                        sourceInformation(composer = $composer, sourceInformation = "CC(remember):WelcomeScreen.kt#9igjgp")
+                                      }
+                                      val tmp0_group: Function0<Unit> = $composer.cache<Function0<Unit>>(invalid = $composer.changedInstance(value = navController), block = { // BLOCK
+                                        local fun <anonymous>(): Function0<Unit> {
+                                          return { // BLOCK
+                                            local fun <anonymous>(): Unit? {
+                                              navController.navigate(route = "login")
+                                            }
+
+                                            <jvm-indy-lambda-metafactory><Function0<Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+                                          }
+                                        }
+
+                                        WelcomeScreenKt::<anonymous>
+                                      })
+                                      $composer.endReplaceGroup()
+                                      tmp0_group
+                                    }, $composer = $composer, $changed = 390)
+                                    Spacer(modifier = #Companion.width-3ABfNKs(width = 16.<get-dp>()), $composer = $composer, $changed = 6)
+                                    AuthButton-FNF3uiM(text = "SIGNUP", icon = #INSTANCE.<get-Default>().<get-Person>(), color = Color(color = 4283215696L), onClick = { // BLOCK
+                                      { // BLOCK
+                                        $composer.startReplaceGroup(key = 2097052951)
+                                        sourceInformation(composer = $composer, sourceInformation = "CC(remember):WelcomeScreen.kt#9igjgp")
+                                      }
+                                      val tmp1_group: Function0<Unit> = $composer.cache<Function0<Unit>>(invalid = $composer.changedInstance(value = navController), block = { // BLOCK
+                                        local fun <anonymous>(): Function0<Unit> {
+                                          return { // BLOCK
+                                            local fun <anonymous>(): Unit? {
+                                              navController.navigate(route = "signup")
+                                            }
+
+                                            <jvm-indy-lambda-metafactory><Function0<Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+                                          }
+                                        }
+
+                                        WelcomeScreenKt::<anonymous>
+                                      })
+                                      $composer.endReplaceGroup()
+                                      tmp1_group
+                                    }, $composer = $composer, $changed = 390)
+                                    // }
+                                    sourceInformationMarkerEnd(composer = $composer)
+                                  }
+                                }
+
+                                WelcomeScreenKt::<anonymous>
+                              }, $composer = $composer, $changed = 54, $default = 4)
+                              // }
+                              sourceInformationMarkerEnd(composer = $composer)
+                            }
+                          }
+
+                          WelcomeScreenKt::<anonymous>
+                        }, $composer = $composer, $changed = 390, $default = 2)
+                      }
+                      Box(modifier = ($this$Column, #Companion).weight(weight = 1.0F).fillMaxWidth(), contentAlignment = #Companion.<get-Center>(), propagateMinConstraints = // COMPOSITE {
+                      false
+                      // }, content = { // BLOCK
+                        @Composable
+                        @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                        local fun BoxScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                          { // BLOCK
+                            sourceInformationMarkerStart(composer = $composer, key = 1662683247, sourceInformation = "C142@5516L363,159@6112L111,163@6325L84,166@6428L2672,155@5943L3157:WelcomeScreen.kt#1c6iix")
+                            // COMPOSITE {
+                            Box(modifier = #Companion.size-3ABfNKs(size = 200.<get-dp>()).padding-3ABfNKs(all = 16.<get-dp>()).alpha(alpha = 0.3F), contentAlignment = #Companion.<get-Center>(), propagateMinConstraints = // COMPOSITE {
+                            false
+                            // }, content = { // BLOCK
+                              @Composable
+                              @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                              local fun BoxScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                                { // BLOCK
+                                  sourceInformationMarkerStart(composer = $composer, key = 584794328, sourceInformation = "C149@5773L88:WelcomeScreen.kt#1c6iix")
+                                  // COMPOSITE {
+                                  Earth3D(modifier = #Companion.fillMaxSize(), $composer = $composer, $changed = 6, $default = 0)
+                                  // }
+                                  sourceInformationMarkerEnd(composer = $composer)
+                                }
+                              }
+
+                              WelcomeScreenKt::<anonymous>
+                            }, $composer = $composer, $changed = 54, $default = 4)
+                            { // BLOCK
+                              val tmp0_modifier: Modifier = #Companion.padding-3ABfNKs(all = 16.<get-dp>()).fillMaxWidth()
+                              val tmp1_colors: CardColors = #INSTANCE.cardColors-ro_MJ88(containerColor = copy-wmQWz5c(arg0 = Color(color = 4279907654L), alpha = 0.8F), contentColor = // COMPOSITE {
+                              <unsafe-coerce><Long, Color>(v = 0L)
+                              // }, disabledContainerColor = // COMPOSITE {
+                              <unsafe-coerce><Long, Color>(v = 0L)
+                              // }, disabledContentColor = // COMPOSITE {
+                              <unsafe-coerce><Long, Color>(v = 0L)
+                              // }, $composer = $composer, $changed = 6.or(other = #$stable.shl(bitCount = 12)), $default = 14)
+                              val tmp2_shape: RoundedCornerShape = RoundedCornerShape-0680j_4(size = 16.<get-dp>())
+                              val tmp3_elevation: CardElevation = #INSTANCE.cardElevation-aqJV_2Y(defaultElevation = 8.<get-dp>(), pressedElevation = // COMPOSITE {
+                              <unsafe-coerce><Float, Dp>(v = 0.0F)
+                              // }, focusedElevation = // COMPOSITE {
+                              <unsafe-coerce><Float, Dp>(v = 0.0F)
+                              // }, hoveredElevation = // COMPOSITE {
+                              <unsafe-coerce><Float, Dp>(v = 0.0F)
+                              // }, draggedElevation = // COMPOSITE {
+                              <unsafe-coerce><Float, Dp>(v = 0.0F)
+                              // }, disabledElevation = // COMPOSITE {
+                              <unsafe-coerce><Float, Dp>(v = 0.0F)
+                              // }, $composer = $composer, $changed = 6.or(other = #$stable.shl(bitCount = 18)), $default = 62)
+                              Card(modifier = tmp0_modifier, shape = tmp2_shape, colors = tmp1_colors, elevation = tmp3_elevation, border = // COMPOSITE {
+                              null
+                              // }, content = rememberComposableLambda(key = -364012948, tracked = true, block = { // BLOCK
+                                local class <no name provided> : Function3<ColumnScope, Composer, Int, Unit> {
+                                  constructor() /* primary */ {
+                                    super/*Any*/()
+                                    /* <init>() */
+
+                                  }
+
+                                  @Composable
+                                  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                                  override fun invoke($this$Card: ColumnScope, /* var */ $composer: Composer?, $changed: Int) {
+                                    sourceInformation(composer = $composer, sourceInformation = "C167@6450L2632:WelcomeScreen.kt#1c6iix")
+                                    when {
+                                      when {
+                                        EQEQ(arg0 = $changed.and(other = 17), arg1 = 16).not() -> true
+                                        else -> $composer.<get-skipping>().not()
+                                      } -> { // BLOCK
+                                        when {
+                                          isTraceInProgress() -> traceEventStart(key = -364012948, dirty1 = $changed, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.WelcomeScreen.<anonymous>.<anonymous>.<anonymous>.<anonymous> (WelcomeScreen.kt:167)")
+                                        }
+                                        Column(modifier = #Companion.padding-3ABfNKs(all = 24.<get-dp>()).fillMaxWidth(), verticalArrangement = // COMPOSITE {
+                                        null
+                                        // }, horizontalAlignment = #Companion.<get-CenterHorizontally>(), content = { // BLOCK
+                                          @Composable
+                                          @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                                          local fun ColumnScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                                            { // BLOCK
+                                              sourceInformationMarkerStart(composer = $composer, key = -890158329, sourceInformation = "C173@6714L295,181@7035L41,184@7201L42,191@7618L171,186@7269L546,197@7841L41,204@8255L165,199@7908L538,210@8472L41,217@8871L163,212@8539L521:WelcomeScreen.kt#1c6iix")
+                                              // COMPOSITE {
+                                              Text--4IGK_g(text = "SELECT YOUR DESTINATION", modifier = // COMPOSITE {
+                                              null
+                                              // }, color = #Companion.getWhite-0d7_KjU(), fontSize = 18.<get-sp>(), fontStyle = // COMPOSITE {
+                                              null
+                                              // }, fontWeight = #Companion.<get-Bold>(), fontFamily = // COMPOSITE {
+                                              null
+                                              // }, letterSpacing = 1.<get-sp>(), textDecoration = // COMPOSITE {
+                                              null
+                                              // }, textAlign = // COMPOSITE {
+                                              null
+                                              // }, lineHeight = // COMPOSITE {
+                                              <unsafe-coerce><Long, TextUnit>(v = 0L)
+                                              // }, overflow = // COMPOSITE {
+                                              <unsafe-coerce><Int, TextOverflow>(v = 0)
+                                              // }, softWrap = // COMPOSITE {
+                                              false
+                                              // }, maxLines = // COMPOSITE {
+                                              0
+                                              // }, minLines = // COMPOSITE {
+                                              0
+                                              // }, onTextLayout = // COMPOSITE {
+                                              null
+                                              // }, style = // COMPOSITE {
+                                              null
+                                              // }, $composer = $composer, $changed = 12782982, $changed1 = 0, $default = 130898)
+                                              Spacer(modifier = #Companion.height-3ABfNKs(height = 24.<get-dp>()), $composer = $composer, $changed = 6)
+                                              var selectedDestination: String?
+                                                val selectedDestination$delegate: MutableState<String?> = { // BLOCK
+                                                  { // BLOCK
+                                                    $composer.startReplaceGroup(key = 941129820)
+                                                    sourceInformation(composer = $composer, sourceInformation = "CC(remember):WelcomeScreen.kt#9igjgp")
+                                                  }
+                                                  val tmp0_group: MutableState<String?> = $composer.cache<MutableState<String?>>(invalid = false, block = { // BLOCK
+                                                    local fun <anonymous>(): MutableState<String?> {
+                                                      return mutableStateOf<String?>(value = null)
+                                                    }
+
+                                                    <no name provided>::<anonymous>
+                                                  })
+                                                  $composer.endReplaceGroup()
+                                                  tmp0_group
+                                                }
+                                                local get(): String? {
+                                                  return selectedDestination$delegate.getValue<String?>(thisObj = null, property = null)
+                                                }
+                                                local set(<set-?>: String?) {
+                                                  return selectedDestination$delegate.setValue<String?>(thisObj = null, property = null, value = <set-?>)
+                                                }
+
+                                              DestinationOption(icon = #INSTANCE.<get-Default>().<get-LocationOn>(), title = "Team Building Retreat", subtitle = "Collaborative experiences in stunning locations", isSelected = EQEQ(arg0 = <get-selectedDestination>(), arg1 = "teamBuilding"), onClick = { // BLOCK
+                                                { // BLOCK
+                                                  $composer.startReplaceGroup(key = 941143293)
+                                                  sourceInformation(composer = $composer, sourceInformation = "CC(remember):WelcomeScreen.kt#9igjgp")
+                                                }
+                                                val tmp1_group: Function0<Unit> = $composer.cache<Function0<Unit>>(invalid = $composer.changedInstance(value = navController), block = { // BLOCK
+                                                  local fun <anonymous>(): Function0<Unit> {
+                                                    return { // BLOCK
+                                                      local fun <anonymous>(): Unit? {
+                                                        <set-selectedDestination>(<set-?> = "teamBuilding")
+                                                        navController.navigate(route = "teamBuilding")
+                                                      }
+
+                                                      <jvm-indy-lambda-metafactory><Function0<Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = <no name provided>::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+                                                    }
+                                                  }
+
+                                                  <no name provided>::<anonymous>
+                                                })
+                                                $composer.endReplaceGroup()
+                                                tmp1_group
+                                              }, $composer = $composer, $changed = 432, $default = 0)
+                                              Spacer(modifier = #Companion.height-3ABfNKs(height = 16.<get-dp>()), $composer = $composer, $changed = 6)
+                                              DestinationOption(icon = #INSTANCE.<get-Default>().<get-LocationOn>(), title = "Adventure Expedition", subtitle = "Challenging activities in breathtaking landscapes", isSelected = EQEQ(arg0 = <get-selectedDestination>(), arg1 = "adventure"), onClick = { // BLOCK
+                                                { // BLOCK
+                                                  $composer.startReplaceGroup(key = 941163671)
+                                                  sourceInformation(composer = $composer, sourceInformation = "CC(remember):WelcomeScreen.kt#9igjgp")
+                                                }
+                                                val tmp2_group: Function0<Unit> = $composer.cache<Function0<Unit>>(invalid = $composer.changedInstance(value = navController), block = { // BLOCK
+                                                  local fun <anonymous>(): Function0<Unit> {
+                                                    return { // BLOCK
+                                                      local fun <anonymous>(): Unit? {
+                                                        <set-selectedDestination>(<set-?> = "adventure")
+                                                        navController.navigate(route = "adventure")
+                                                      }
+
+                                                      <jvm-indy-lambda-metafactory><Function0<Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = <no name provided>::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+                                                    }
+                                                  }
+
+                                                  <no name provided>::<anonymous>
+                                                })
+                                                $composer.endReplaceGroup()
+                                                tmp2_group
+                                              }, $composer = $composer, $changed = 432, $default = 0)
+                                              Spacer(modifier = #Companion.height-3ABfNKs(height = 16.<get-dp>()), $composer = $composer, $changed = 6)
+                                              DestinationOption(icon = #INSTANCE.<get-Default>().<get-LocationOn>(), title = "Memory Creation", subtitle = "Capturing unforgettable moments together", isSelected = EQEQ(arg0 = <get-selectedDestination>(), arg1 = "memories"), onClick = { // BLOCK
+                                                { // BLOCK
+                                                  $composer.startReplaceGroup(key = 941183381)
+                                                  sourceInformation(composer = $composer, sourceInformation = "CC(remember):WelcomeScreen.kt#9igjgp")
+                                                }
+                                                val tmp3_group: Function0<Unit> = $composer.cache<Function0<Unit>>(invalid = $composer.changedInstance(value = navController), block = { // BLOCK
+                                                  local fun <anonymous>(): Function0<Unit> {
+                                                    return { // BLOCK
+                                                      local fun <anonymous>(): Unit? {
+                                                        <set-selectedDestination>(<set-?> = "memories")
+                                                        navController.navigate(route = "memories")
+                                                      }
+
+                                                      <jvm-indy-lambda-metafactory><Function0<Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = <no name provided>::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+                                                    }
+                                                  }
+
+                                                  <no name provided>::<anonymous>
+                                                })
+                                                $composer.endReplaceGroup()
+                                                tmp3_group
+                                              }, $composer = $composer, $changed = 432, $default = 0)
+                                              // }
+                                              sourceInformationMarkerEnd(composer = $composer)
+                                            }
+                                          }
+
+                                          <no name provided>::<anonymous>
+                                        }, $composer = $composer, $changed = 390, $default = 2)
+                                        when {
+                                          isTraceInProgress() -> traceEventEnd()
+                                        }
+                                      }
+                                      else -> $composer.skipToGroupEnd()
+                                    }
+                                  }
+
+                                }
+
+                                <no name provided>()
+                              }, $composer = $composer, $changed = 54), $composer = $composer, $changed = 196614, $default = 16)
+                            }
+                            // }
+                            sourceInformationMarkerEnd(composer = $composer)
+                          }
+                        }
+
+                        WelcomeScreenKt::<anonymous>
+                      }, $composer = $composer, $changed = 48, $default = 4)
+                      { // BLOCK
+                        val tmp2_horizontalAlignment: Horizontal = #Companion.<get-CenterHorizontally>()
+                        val tmp3_modifier: Modifier = #Companion.padding-qDBjuR0(, bottom = 32.<get-dp>())
+                        Column(modifier = tmp3_modifier, verticalArrangement = // COMPOSITE {
+                        null
+                        // }, horizontalAlignment = tmp2_horizontalAlignment, content = { // BLOCK
+                          @Composable
+                          @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                          local fun ColumnScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                            { // BLOCK
+                              sourceInformationMarkerStart(composer = $composer, key = 1666386104, sourceInformation = "C233@9449L40,231@9346L161,236@9525L41,238@9584L233:WelcomeScreen.kt#1c6iix")
+                              // COMPOSITE {
+                              AnimatedProceedButton(text = "EXPLORE ALL OPTIONS", onClick = { // BLOCK
+                                { // BLOCK
+                                  $composer.startReplaceGroup(key = 746493916)
+                                  sourceInformation(composer = $composer, sourceInformation = "CC(remember):WelcomeScreen.kt#9igjgp")
+                                }
+                                val tmp0_group: Function0<Unit> = $composer.cache<Function0<Unit>>(invalid = $composer.changedInstance(value = navController), block = { // BLOCK
+                                  local fun <anonymous>(): Function0<Unit> {
+                                    return { // BLOCK
+                                      local fun <anonymous>(): Unit? {
+                                        navController.navigate(route = "exploreAll")
+                                      }
+
+                                      <jvm-indy-lambda-metafactory><Function0<Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+                                    }
+                                  }
+
+                                  WelcomeScreenKt::<anonymous>
+                                })
+                                $composer.endReplaceGroup()
+                                tmp0_group
+                              }, $composer = $composer, $changed = 6)
+                              Spacer(modifier = #Companion.height-3ABfNKs(height = 16.<get-dp>()), $composer = $composer, $changed = 6)
+                              Text--4IGK_g(text = "Swipe left to browse categories", modifier = // COMPOSITE {
+                              null
+                              // }, color = copy-wmQWz5c(arg0 = #Companion.getWhite-0d7_KjU(), alpha = 0.7F), fontSize = 14.<get-sp>(), fontStyle = // COMPOSITE {
+                              null
+                              // }, fontWeight = #Companion.<get-Light>(), fontFamily = // COMPOSITE {
+                              null
+                              // }, letterSpacing = // COMPOSITE {
+                              <unsafe-coerce><Long, TextUnit>(v = 0L)
+                              // }, textDecoration = // COMPOSITE {
+                              null
+                              // }, textAlign = // COMPOSITE {
+                              null
+                              // }, lineHeight = // COMPOSITE {
+                              <unsafe-coerce><Long, TextUnit>(v = 0L)
+                              // }, overflow = // COMPOSITE {
+                              <unsafe-coerce><Int, TextOverflow>(v = 0)
+                              // }, softWrap = // COMPOSITE {
+                              false
+                              // }, maxLines = // COMPOSITE {
+                              0
+                              // }, minLines = // COMPOSITE {
+                              0
+                              // }, onTextLayout = // COMPOSITE {
+                              null
+                              // }, style = // COMPOSITE {
+                              null
+                              // }, $composer = $composer, $changed = 200070, $changed1 = 0, $default = 131026)
+                              // }
+                              sourceInformationMarkerEnd(composer = $composer)
+                            }
+                          }
+
+                          WelcomeScreenKt::<anonymous>
+                        }, $composer = $composer, $changed = 390, $default = 2)
+                      }
+                      // }
+                      sourceInformationMarkerEnd(composer = $composer)
+                    }
+                  }
+
+                  WelcomeScreenKt::<anonymous>
+                }, $composer = $composer, $changed = 438, $default = 0)
+              }
+              // }
+              sourceInformationMarkerEnd(composer = $composer)
+            }
+          }
+
+          WelcomeScreenKt::<anonymous>
+        }, $composer = $composer, $changed = 6, $default = 6)
+        when {
+          isTraceInProgress() -> traceEventEnd()
+        }
+      }
+      else -> $composer.skipToGroupEnd()
+    }
+    { // BLOCK
+      { // BLOCK
+        val tmp0_safe_receiver: ScopeUpdateScope? = $composer.endRestartGroup()
+        when {
+          EQEQ(arg0 = tmp0_safe_receiver, arg1 = null) -> null
+          else -> tmp0_safe_receiver.updateScope(block = { // BLOCK
+            local fun <anonymous>($composer: Composer?, $force: Int): Unit? {
+              return WelcomeScreen(navController = navController, $composer = $composer, $changed = updateChangedFlags(flags = $changed.or(other = 1)))
+            }
+
+            <jvm-indy-lambda-metafactory><Function2<Composer?, Int, Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+          })
+        }
+      }
+    }
+  }
+
+  @Composable
+  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+  fun AuthButton-FNF3uiM(text: String, icon: ImageVector, color: Color, onClick: Function0<Unit>, /* var */ $composer: Composer?, $changed: Int) {
+    { // BLOCK
+      $composer = $composer.startRestartGroup(key = -2122701991)
+      sourceInformation(composer = $composer, sourceInformation = "C(AuthButton)P(3,1,0:c#ui.graphics.Color)258@10037L58,263@10214L454,256@9970L698:WelcomeScreen.kt#1c6iix")
+    }
+    val $dirty: Int = $changed
+    when {
+      EQEQ(arg0 = $changed.and(other = 6), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = text) -> 4
+        else -> 2
+      })
+    }
+    when {
+      EQEQ(arg0 = $changed.and(other = 48), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = icon) -> 32
+        else -> 16
+      })
+    }
+    when {
+      EQEQ(arg0 = $changed.and(other = 384), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = <unsafe-coerce><Color, Long>(v = color)) -> 256
+        else -> 128
+      })
+    }
+    when {
+      EQEQ(arg0 = $changed.and(other = 3072), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changedInstance(value = onClick) -> 2048
+        else -> 1024
+      })
+    }
+    when {
+      when {
+        EQEQ(arg0 = $dirty.and(other = 1171), arg1 = 1170).not() -> true
+        else -> $composer.<get-skipping>().not()
+      } -> { // BLOCK
+        when {
+          isTraceInProgress() -> traceEventStart(key = -2122701991, dirty1 = $dirty, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.AuthButton (WelcomeScreen.kt:255)")
+        }
+        { // BLOCK
+          val tmp0_colors: ButtonColors = #INSTANCE.buttonColors-ro_MJ88(containerColor = color, contentColor = // COMPOSITE {
+          <unsafe-coerce><Long, Color>(v = 0L)
+          // }, disabledContainerColor = // COMPOSITE {
+          <unsafe-coerce><Long, Color>(v = 0L)
+          // }, disabledContentColor = // COMPOSITE {
+          <unsafe-coerce><Long, Color>(v = 0L)
+          // }, $composer = $composer, $changed = 14.and(other = $dirty.shr(bitCount = 6)).or(other = #$stable.shl(bitCount = 12)), $default = 14)
+          val tmp1_shape: RoundedCornerShape = RoundedCornerShape-0680j_4(size = 12.<get-dp>())
+          val tmp2_modifier: Modifier = #Companion.shadow-s4CzXII(elevation = 4.<get-dp>(), shape = RoundedCornerShape-0680j_4(size = 12.<get-dp>()))
+          Button(onClick = onClick, modifier = tmp2_modifier, enabled = // COMPOSITE {
+          false
+          // }, shape = tmp1_shape, colors = tmp0_colors, elevation = // COMPOSITE {
+          null
+          // }, border = // COMPOSITE {
+          null
+          // }, contentPadding = // COMPOSITE {
+          null
+          // }, interactionSource = // COMPOSITE {
+          null
+          // }, content = rememberComposableLambda(key = -7854743, tracked = true, block = { // BLOCK
+            local class <no name provided> : Function3<RowScope, Composer, Int, Unit> {
+              constructor() /* primary */ {
+                super/*Any*/()
+                /* <init>() */
+
+              }
+
+              @Composable
+              @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+              override fun invoke($this$Button: RowScope, /* var */ $composer: Composer?, $changed: Int) {
+                sourceInformation(composer = $composer, sourceInformation = "C264@10224L438:WelcomeScreen.kt#1c6iix")
+                when {
+                  when {
+                    EQEQ(arg0 = $changed.and(other = 17), arg1 = 16).not() -> true
+                    else -> $composer.<get-skipping>().not()
+                  } -> { // BLOCK
+                    when {
+                      isTraceInProgress() -> traceEventStart(key = -7854743, dirty1 = $changed, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.AuthButton.<anonymous> (WelcomeScreen.kt:264)")
+                    }
+                    Row(modifier = // COMPOSITE {
+                    null
+                    // }, horizontalArrangement = // COMPOSITE {
+                    null
+                    // }, verticalAlignment = #Companion.<get-CenterVertically>(), content = { // BLOCK
+                      @Composable
+                      @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                      local fun RowScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                        { // BLOCK
+                          sourceInformationMarkerStart(composer = $composer, key = -778198902, sourceInformation = "C265@10290L133,270@10436L39,271@10488L164:WelcomeScreen.kt#1c6iix")
+                          // COMPOSITE {
+                          Icon-ww6aTOc(imageVector = icon, contentDescription = text, modifier = // COMPOSITE {
+                          null
+                          // }, tint = #Companion.getWhite-0d7_KjU(), $composer = $composer, $changed = 3072, $default = 4)
+                          Spacer(modifier = #Companion.width-3ABfNKs(width = 8.<get-dp>()), $composer = $composer, $changed = 6)
+                          { // BLOCK
+                            val tmp0_color: Color = #Companion.getWhite-0d7_KjU()
+                            val tmp1_fontWeight: FontWeight = #Companion.<get-Bold>()
+                            val tmp2_fontSize: TextUnit = 14.<get-sp>()
+                            Text--4IGK_g(text = text, modifier = // COMPOSITE {
+                            null
+                            // }, color = tmp0_color, fontSize = tmp2_fontSize, fontStyle = // COMPOSITE {
+                            null
+                            // }, fontWeight = tmp1_fontWeight, fontFamily = // COMPOSITE {
+                            null
+                            // }, letterSpacing = // COMPOSITE {
+                            <unsafe-coerce><Long, TextUnit>(v = 0L)
+                            // }, textDecoration = // COMPOSITE {
+                            null
+                            // }, textAlign = // COMPOSITE {
+                            null
+                            // }, lineHeight = // COMPOSITE {
+                            <unsafe-coerce><Long, TextUnit>(v = 0L)
+                            // }, overflow = // COMPOSITE {
+                            <unsafe-coerce><Int, TextOverflow>(v = 0)
+                            // }, softWrap = // COMPOSITE {
+                            false
+                            // }, maxLines = // COMPOSITE {
+                            0
+                            // }, minLines = // COMPOSITE {
+                            0
+                            // }, onTextLayout = // COMPOSITE {
+                            null
+                            // }, style = // COMPOSITE {
+                            null
+                            // }, $composer = $composer, $changed = 200064, $changed1 = 0, $default = 131026)
+                          }
+                          // }
+                          sourceInformationMarkerEnd(composer = $composer)
+                        }
+                      }
+
+                      <no name provided>::<anonymous>
+                    }, $composer = $composer, $changed = 384, $default = 3)
+                    when {
+                      isTraceInProgress() -> traceEventEnd()
+                    }
+                  }
+                  else -> $composer.skipToGroupEnd()
+                }
+              }
+
+            }
+
+            <no name provided>()
+          }, $composer = $composer, $changed = 54), $composer = $composer, $changed = 805306368.or(other = 14.and(other = $dirty.shr(bitCount = 9))), $default = 484)
+        }
+        when {
+          isTraceInProgress() -> traceEventEnd()
+        }
+      }
+      else -> $composer.skipToGroupEnd()
+    }
+    { // BLOCK
+      { // BLOCK
+        val tmp0_safe_receiver: ScopeUpdateScope? = $composer.endRestartGroup()
+        when {
+          EQEQ(arg0 = tmp0_safe_receiver, arg1 = null) -> null
+          else -> tmp0_safe_receiver.updateScope(block = { // BLOCK
+            local fun <anonymous>($composer: Composer?, $force: Int): Unit? {
+              return AuthButton-FNF3uiM(text = text, icon = icon, color = color, onClick = onClick, $composer = $composer, $changed = updateChangedFlags(flags = $changed.or(other = 1)))
+            }
+
+            <jvm-indy-lambda-metafactory><Function2<Composer?, Int, Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+          })
+        }
+      }
+    }
+  }
+
+  @Composable
+  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+  fun DestinationOption(icon: ImageVector, title: String, subtitle: String, /* var */ isSelected: Boolean, onClick: Function0<Unit>, /* var */ $composer: Composer?, $changed: Int, $default: Int) {
+    { // BLOCK
+      $composer = $composer.startRestartGroup(key = 1714122444)
+      sourceInformation(composer = $composer, sourceInformation = "C(DestinationOption)P(!1,4,3)289@10861L53,290@10951L271,310@11579L1684,303@11364L1899:WelcomeScreen.kt#1c6iix")
+    }
+    val $dirty: Int = $changed
+    when {
+      EQEQ(arg0 = $default.and(other = 1), arg1 = 0).not() -> $dirty = $dirty.or(other = 6)
+      EQEQ(arg0 = $changed.and(other = 6), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = icon) -> 4
+        else -> 2
+      })
+    }
+    when {
+      EQEQ(arg0 = $default.and(other = 2), arg1 = 0).not() -> $dirty = $dirty.or(other = 48)
+      EQEQ(arg0 = $changed.and(other = 48), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = title) -> 32
+        else -> 16
+      })
+    }
+    when {
+      EQEQ(arg0 = $default.and(other = 4), arg1 = 0).not() -> $dirty = $dirty.or(other = 384)
+      EQEQ(arg0 = $changed.and(other = 384), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = subtitle) -> 256
+        else -> 128
+      })
+    }
+    when {
+      EQEQ(arg0 = $default.and(other = 8), arg1 = 0).not() -> $dirty = $dirty.or(other = 3072)
+      EQEQ(arg0 = $changed.and(other = 3072), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = isSelected) -> 2048
+        else -> 1024
+      })
+    }
+    when {
+      EQEQ(arg0 = $default.and(other = 16), arg1 = 0).not() -> $dirty = $dirty.or(other = 24576)
+      EQEQ(arg0 = $changed.and(other = 24576), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changedInstance(value = onClick) -> 16384
+        else -> 8192
+      })
+    }
+    when {
+      when {
+        EQEQ(arg0 = $dirty.and(other = 9363), arg1 = 9362).not() -> true
+        else -> $composer.<get-skipping>().not()
+      } -> { // BLOCK
+        when {
+          EQEQ(arg0 = $default.and(other = 8), arg1 = 0).not() -> isSelected = false
+        }
+        when {
+          isTraceInProgress() -> traceEventStart(key = 1714122444, dirty1 = $dirty, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.DestinationOption (WelcomeScreen.kt:288)")
+        }
+        val infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = "hover_animation", $composer = $composer, $changed = 6, $default = 0)
+        val scale: Float
+          val scale$delegate: State<Float> = infiniteTransition.animateFloat(initialValue = 1.0F, targetValue = 1.02F, animationSpec = infiniteRepeatable-9IiC70o<Float>(animation = tween<Float>(durationMillis = 2000, easing = <get-FastOutSlowInEasing>()), repeatMode = #Reverse), label = "hover_scale", $composer = $composer, $changed = 25008.or(other = #$stable).or(other = #$stable.shl(bitCount = 9)), $default = 0)
+          local get(): Float {
+            return scale$delegate.getValue<Float>(thisObj = null, property = null)
+          }
+
+        val backgroundColor: Color = when {
+          isSelected -> Color(color = 4279060385L)
+          else -> Color(color = 4278855736L)
+        }
+        val contentAlpha: Float = when {
+          isSelected -> 1.0F
+          else -> 0.9F
+        }
+        { // BLOCK
+          val tmp0_modifier: Modifier = #Companion.fillMaxWidth().scale(scale = <get-scale>()).clickable-XHw0xAI(, onClick = onClick)
+          val tmp1_shape: RoundedCornerShape = RoundedCornerShape-0680j_4(size = 12.<get-dp>())
+          Surface-T9BRK9s(modifier = tmp0_modifier, shape = tmp1_shape, color = backgroundColor, contentColor = // COMPOSITE {
+          <unsafe-coerce><Long, Color>(v = 0L)
+          // }, tonalElevation = // COMPOSITE {
+          <unsafe-coerce><Float, Dp>(v = 0.0F)
+          // }, shadowElevation = // COMPOSITE {
+          <unsafe-coerce><Float, Dp>(v = 0.0F)
+          // }, border = // COMPOSITE {
+          null
+          // }, content = rememberComposableLambda(key = 1885283025, tracked = true, block = { // BLOCK
+            local class <no name provided> : Function2<Composer, Int, Unit> {
+              constructor() /* primary */ {
+                super/*Any*/()
+                /* <init>() */
+
+              }
+
+              @Composable
+              @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+              override fun invoke(/* var */ $composer: Composer?, $changed: Int) {
+                sourceInformation(composer = $composer, sourceInformation = "C311@11589L1668:WelcomeScreen.kt#1c6iix")
+                when {
+                  when {
+                    EQEQ(arg0 = $changed.and(other = 3), arg1 = 2).not() -> true
+                    else -> $composer.<get-skipping>().not()
+                  } -> { // BLOCK
+                    when {
+                      isTraceInProgress() -> traceEventStart(key = 1885283025, dirty1 = $changed, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.DestinationOption.<anonymous> (WelcomeScreen.kt:311)")
+                    }
+                    Row(modifier = #Companion.padding-3ABfNKs(all = 16.<get-dp>()).fillMaxWidth(), horizontalArrangement = // COMPOSITE {
+                    null
+                    // }, verticalAlignment = #Companion.<get-CenterVertically>(), content = { // BLOCK
+                      @Composable
+                      @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                      local fun RowScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                        { // BLOCK
+                          sourceInformationMarkerStart(composer = $composer, key = -753090344, sourceInformation = "C317@11774L565,334@12353L40,336@12407L563,354@12984L38,356@13036L211:WelcomeScreen.kt#1c6iix")
+                          // COMPOSITE {
+                          Box(modifier = #Companion.size-3ABfNKs(size = 48.<get-dp>()).background-bw27NRU(color = when {
+                            isSelected -> Color(color = 4283215696L)
+                            else -> Color(color = 4280391411L)
+                          }, shape = <get-CircleShape>()), contentAlignment = #Companion.<get-Center>(), propagateMinConstraints = // COMPOSITE {
+                          false
+                          // }, content = { // BLOCK
+                            @Composable
+                            @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                            local fun BoxScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                              { // BLOCK
+                                sourceInformationMarkerStart(composer = $composer, key = -1410152337, sourceInformation = "C326@12122L203:WelcomeScreen.kt#1c6iix")
+                                // COMPOSITE {
+                                { // BLOCK
+                                  val tmp0_tint: Color = #Companion.getWhite-0d7_KjU()
+                                  val tmp1_modifier: Modifier = #Companion.size-3ABfNKs(size = 24.<get-dp>())
+                                  Icon-ww6aTOc(imageVector = icon, contentDescription = title, modifier = tmp1_modifier, tint = tmp0_tint, $composer = $composer, $changed = 3456, $default = 0)
+                                }
+                                // }
+                                sourceInformationMarkerEnd(composer = $composer)
+                              }
+                            }
+
+                            <no name provided>::<anonymous>
+                          }, $composer = $composer, $changed = 48, $default = 4)
+                          Spacer(modifier = #Companion.width-3ABfNKs(width = 16.<get-dp>()), $composer = $composer, $changed = 6)
+                          Column(modifier = // COMPOSITE {
+                          null
+                          // }, verticalArrangement = // COMPOSITE {
+                          null
+                          // }, horizontalAlignment = // COMPOSITE {
+                          null
+                          // }, content = { // BLOCK
+                            @Composable
+                            @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+                            local fun ColumnScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+                              { // BLOCK
+                                sourceInformationMarkerStart(composer = $composer, key = -1409834866, sourceInformation = "C337@12432L246,345@12696L260:WelcomeScreen.kt#1c6iix")
+                                // COMPOSITE {
+                                { // BLOCK
+                                  val tmp0_color: Color = #Companion.getWhite-0d7_KjU()
+                                  val tmp1_fontSize: TextUnit = 16.<get-sp>()
+                                  val tmp2_fontWeight: FontWeight = #Companion.<get-Bold>()
+                                  val tmp3_modifier: Modifier = #Companion.alpha(alpha = contentAlpha)
+                                  Text--4IGK_g(text = title, modifier = tmp3_modifier, color = tmp0_color, fontSize = tmp1_fontSize, fontStyle = // COMPOSITE {
+                                  null
+                                  // }, fontWeight = tmp2_fontWeight, fontFamily = // COMPOSITE {
+                                  null
+                                  // }, letterSpacing = // COMPOSITE {
+                                  <unsafe-coerce><Long, TextUnit>(v = 0L)
+                                  // }, textDecoration = // COMPOSITE {
+                                  null
+                                  // }, textAlign = // COMPOSITE {
+                                  null
+                                  // }, lineHeight = // COMPOSITE {
+                                  <unsafe-coerce><Long, TextUnit>(v = 0L)
+                                  // }, overflow = // COMPOSITE {
+                                  <unsafe-coerce><Int, TextOverflow>(v = 0)
+                                  // }, softWrap = // COMPOSITE {
+                                  false
+                                  // }, maxLines = // COMPOSITE {
+                                  0
+                                  // }, minLines = // COMPOSITE {
+                                  0
+                                  // }, onTextLayout = // COMPOSITE {
+                                  null
+                                  // }, style = // COMPOSITE {
+                                  null
+                                  // }, $composer = $composer, $changed = 200064, $changed1 = 0, $default = 131024)
+                                }
+                                { // BLOCK
+                                  val tmp4_color: Color = copy-wmQWz5c(arg0 = #Companion.getWhite-0d7_KjU(), alpha = 0.7F.times(other = contentAlpha))
+                                  val tmp5_fontSize: TextUnit = 12.<get-sp>()
+                                  val tmp6_overflow: TextOverflow = #Companion.getEllipsis-gIe3tQ8()
+                                  Text--4IGK_g(text = subtitle, modifier = // COMPOSITE {
+                                  null
+                                  // }, color = tmp4_color, fontSize = tmp5_fontSize, fontStyle = // COMPOSITE {
+                                  null
+                                  // }, fontWeight = // COMPOSITE {
+                                  null
+                                  // }, fontFamily = // COMPOSITE {
+                                  null
+                                  // }, letterSpacing = // COMPOSITE {
+                                  <unsafe-coerce><Long, TextUnit>(v = 0L)
+                                  // }, textDecoration = // COMPOSITE {
+                                  null
+                                  // }, textAlign = // COMPOSITE {
+                                  null
+                                  // }, lineHeight = // COMPOSITE {
+                                  <unsafe-coerce><Long, TextUnit>(v = 0L)
+                                  // }, overflow = tmp6_overflow, softWrap = // COMPOSITE {
+                                  false
+                                  // }, maxLines = 2, minLines = // COMPOSITE {
+                                  0
+                                  // }, onTextLayout = // COMPOSITE {
+                                  null
+                                  // }, style = // COMPOSITE {
+                                  null
+                                  // }, $composer = $composer, $changed = 3072, $changed1 = 3120, $default = 120818)
+                                }
+                                // }
+                                sourceInformationMarkerEnd(composer = $composer)
+                              }
+                            }
+
+                            <no name provided>::<anonymous>
+                          }, $composer = $composer, $changed = 0, $default = 7)
+                          Spacer(modifier = ($this$Row, #Companion).weight(weight = 1.0F), $composer = $composer, $changed = 0)
+                          Icon-ww6aTOc(imageVector = #INSTANCE.<get-ArrowForward>(), contentDescription = "Go to " + title, modifier = // COMPOSITE {
+                          null
+                          // }, tint = copy-wmQWz5c(arg0 = #Companion.getWhite-0d7_KjU(), alpha = 0.7F.times(other = contentAlpha)), $composer = $composer, $changed = 0, $default = 4)
+                          // }
+                          sourceInformationMarkerEnd(composer = $composer)
+                        }
+                      }
+
+                      <no name provided>::<anonymous>
+                    }, $composer = $composer, $changed = 390, $default = 2)
+                    when {
+                      isTraceInProgress() -> traceEventEnd()
+                    }
+                  }
+                  else -> $composer.skipToGroupEnd()
+                }
+              }
+
+            }
+
+            <no name provided>()
+          }, $composer = $composer, $changed = 54), $composer = $composer, $changed = 12582912, $default = 120)
+        }
+        when {
+          isTraceInProgress() -> traceEventEnd()
+        }
+      }
+      else -> $composer.skipToGroupEnd()
+    }
+    { // BLOCK
+      { // BLOCK
+        val tmp0_safe_receiver: ScopeUpdateScope? = $composer.endRestartGroup()
+        when {
+          EQEQ(arg0 = tmp0_safe_receiver, arg1 = null) -> null
+          else -> tmp0_safe_receiver.updateScope(block = { // BLOCK
+            local fun <anonymous>($composer: Composer?, $force: Int): Unit? {
+              return DestinationOption(icon = icon, title = title, subtitle = subtitle, isSelected = isSelected, onClick = onClick, $composer = $composer, $changed = updateChangedFlags(flags = $changed.or(other = 1)), $default = $default)
+            }
+
+            <jvm-indy-lambda-metafactory><Function2<Composer?, Int, Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+          })
+        }
+      }
+    }
+  }
+
+  @Composable
+  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+  fun AnimatedProceedButton(text: String, onClick: Function0<Unit>, /* var */ $composer: Composer?, $changed: Int) {
+    { // BLOCK
+      $composer = $composer.startRestartGroup(key = 706365257)
+      sourceInformation(composer = $composer, sourceInformation = "C(AnimatedProceedButton)P(1)370@13381L54,371@13472L272,381@13787L269,401@14416L70,406@14614L194,391@14062L746:WelcomeScreen.kt#1c6iix")
+    }
+    val $dirty: Int = $changed
+    when {
+      EQEQ(arg0 = $changed.and(other = 6), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changed(value = text) -> 4
+        else -> 2
+      })
+    }
+    when {
+      EQEQ(arg0 = $changed.and(other = 48), arg1 = 0) -> $dirty = $dirty.or(other = when {
+        $composer.changedInstance(value = onClick) -> 32
+        else -> 16
+      })
+    }
+    when {
+      when {
+        EQEQ(arg0 = $dirty.and(other = 19), arg1 = 18).not() -> true
+        else -> $composer.<get-skipping>().not()
+      } -> { // BLOCK
+        when {
+          isTraceInProgress() -> traceEventStart(key = 706365257, dirty1 = $dirty, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.AnimatedProceedButton (WelcomeScreen.kt:369)")
+        }
+        val infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = "button_animation", $composer = $composer, $changed = 6, $default = 0)
+        val scale: Float
+          val scale$delegate: State<Float> = infiniteTransition.animateFloat(initialValue = 1.0F, targetValue = 1.05F, animationSpec = infiniteRepeatable-9IiC70o<Float>(animation = tween<Float>(durationMillis = 1000, easing = <get-FastOutSlowInEasing>()), repeatMode = #Reverse), label = "button_pulse", $composer = $composer, $changed = 25008.or(other = #$stable).or(other = #$stable.shl(bitCount = 9)), $default = 0)
+          local get(): Float {
+            return scale$delegate.getValue<Float>(thisObj = null, property = null)
+          }
+
+        val glowAmount: Float
+          val glowAmount$delegate: State<Float> = infiniteTransition.animateFloat(initialValue = 0.0F, targetValue = 10.0F, animationSpec = infiniteRepeatable-9IiC70o<Float>(animation = tween<Float>(durationMillis = 1000, easing = <get-FastOutSlowInEasing>()), repeatMode = #Reverse), label = "button_glow", $composer = $composer, $changed = 25008.or(other = #$stable).or(other = #$stable.shl(bitCount = 9)), $default = 0)
+          local get(): Float {
+            return glowAmount$delegate.getValue<Float>(thisObj = null, property = null)
+          }
+
+        { // BLOCK
+          val tmp0_modifier: Modifier = #Companion.scale(scale = <get-scale>()).shadow-s4CzXII(elevation = plus-5rwHm24(arg0 = 8.<get-dp>(), other = <get-glowAmount>().<get-dp>()), shape = RoundedCornerShape-0680j_4(size = 24.<get-dp>()), ambientColor = Color(color = 4283215696L), spotColor = Color(color = 4283215696L))
+          val tmp1_colors: ButtonColors = #INSTANCE.buttonColors-ro_MJ88(containerColor = Color(color = 4283215696L), contentColor = // COMPOSITE {
+          <unsafe-coerce><Long, Color>(v = 0L)
+          // }, disabledContainerColor = // COMPOSITE {
+          <unsafe-coerce><Long, Color>(v = 0L)
+          // }, disabledContentColor = // COMPOSITE {
+          <unsafe-coerce><Long, Color>(v = 0L)
+          // }, $composer = $composer, $changed = 6.or(other = #$stable.shl(bitCount = 12)), $default = 14)
+          val tmp2_contentPadding: PaddingValues = PaddingValues-YgX7TsA(horizontal = 32.<get-dp>(), vertical = 12.<get-dp>())
+          val tmp3_shape: RoundedCornerShape = RoundedCornerShape-0680j_4(size = 24.<get-dp>())
+          Button(onClick = onClick, modifier = tmp0_modifier, enabled = // COMPOSITE {
+          false
+          // }, shape = tmp3_shape, colors = tmp1_colors, elevation = // COMPOSITE {
+          null
+          // }, border = // COMPOSITE {
+          null
+          // }, contentPadding = tmp2_contentPadding, interactionSource = // COMPOSITE {
+          null
+          // }, content = rememberComposableLambda(key = 373520185, tracked = true, block = { // BLOCK
+            local class <no name provided> : Function3<RowScope, Composer, Int, Unit> {
+              constructor() /* primary */ {
+                super/*Any*/()
+                /* <init>() */
+
+              }
+
+              @Composable
+              @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+              override fun invoke($this$Button: RowScope, /* var */ $composer: Composer?, $changed: Int) {
+                sourceInformation(composer = $composer, sourceInformation = "C407@14624L178:WelcomeScreen.kt#1c6iix")
+                when {
+                  when {
+                    EQEQ(arg0 = $changed.and(other = 17), arg1 = 16).not() -> true
+                    else -> $composer.<get-skipping>().not()
+                  } -> { // BLOCK
+                    when {
+                      isTraceInProgress() -> traceEventStart(key = 373520185, dirty1 = $changed, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.AnimatedProceedButton.<anonymous> (WelcomeScreen.kt:407)")
+                    }
+                    { // BLOCK
+                      val tmp0_color: Color = #Companion.getWhite-0d7_KjU()
+                      val tmp1_fontWeight: FontWeight = #Companion.<get-Bold>()
+                      val tmp2_fontSize: TextUnit = 16.<get-sp>()
+                      val tmp3_letterSpacing: TextUnit = 1.<get-sp>()
+                      Text--4IGK_g(text = text, modifier = // COMPOSITE {
+                      null
+                      // }, color = tmp0_color, fontSize = tmp2_fontSize, fontStyle = // COMPOSITE {
+                      null
+                      // }, fontWeight = tmp1_fontWeight, fontFamily = // COMPOSITE {
+                      null
+                      // }, letterSpacing = tmp3_letterSpacing, textDecoration = // COMPOSITE {
+                      null
+                      // }, textAlign = // COMPOSITE {
+                      null
+                      // }, lineHeight = // COMPOSITE {
+                      <unsafe-coerce><Long, TextUnit>(v = 0L)
+                      // }, overflow = // COMPOSITE {
+                      <unsafe-coerce><Int, TextOverflow>(v = 0)
+                      // }, softWrap = // COMPOSITE {
+                      false
+                      // }, maxLines = // COMPOSITE {
+                      0
+                      // }, minLines = // COMPOSITE {
+                      0
+                      // }, onTextLayout = // COMPOSITE {
+                      null
+                      // }, style = // COMPOSITE {
+                      null
+                      // }, $composer = $composer, $changed = 12782976, $changed1 = 0, $default = 130898)
+                    }
+                    when {
+                      isTraceInProgress() -> traceEventEnd()
+                    }
+                  }
+                  else -> $composer.skipToGroupEnd()
+                }
+              }
+
+            }
+
+            <no name provided>()
+          }, $composer = $composer, $changed = 54), $composer = $composer, $changed = 817889280.or(other = 14.and(other = $dirty.shr(bitCount = 3))), $default = 356)
+        }
+        when {
+          isTraceInProgress() -> traceEventEnd()
+        }
+      }
+      else -> $composer.skipToGroupEnd()
+    }
+    { // BLOCK
+      { // BLOCK
+        val tmp0_safe_receiver: ScopeUpdateScope? = $composer.endRestartGroup()
+        when {
+          EQEQ(arg0 = tmp0_safe_receiver, arg1 = null) -> null
+          else -> tmp0_safe_receiver.updateScope(block = { // BLOCK
+            local fun <anonymous>($composer: Composer?, $force: Int): Unit? {
+              return AnimatedProceedButton(text = text, onClick = onClick, $composer = $composer, $changed = updateChangedFlags(flags = $changed.or(other = 1)))
+            }
+
+            <jvm-indy-lambda-metafactory><Function2<Composer?, Int, Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+          })
+        }
+      }
+    }
+  }
+
+  @Composable
+  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+  fun InteractiveWaves(/* var */ $composer: Composer?, $changed: Int) {
+    { // BLOCK
+      $composer = $composer.startRestartGroup(key = -1382964931)
+      sourceInformation(composer = $composer, sourceInformation = "C(InteractiveWaves)421@14995L53,422@15091L272,432@15407L273,445@15874L1020:WelcomeScreen.kt#1c6iix")
+    }
+    when {
+      when {
+        EQEQ(arg0 = $changed, arg1 = 0).not() -> true
+        else -> $composer.<get-skipping>().not()
+      } -> { // BLOCK
+        when {
+          isTraceInProgress() -> traceEventStart(key = -1382964931, dirty1 = $changed, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.InteractiveWaves (WelcomeScreen.kt:418)")
+        }
+        val infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = "waves_animation", $composer = $composer, $changed = 6, $default = 0)
+        val waveOffset1: Float
+          val waveOffset1$delegate: State<Float> = infiniteTransition.animateFloat(initialValue = 0.0F, targetValue = 400.0F, animationSpec = infiniteRepeatable-9IiC70o<Float>(animation = tween<Float>(durationMillis = 8000, easing = <get-FastOutSlowInEasing>()), repeatMode = #Reverse), label = "wave_motion_1", $composer = $composer, $changed = 25008.or(other = #$stable).or(other = #$stable.shl(bitCount = 9)), $default = 0)
+          local get(): Float {
+            return waveOffset1$delegate.getValue<Float>(thisObj = null, property = null)
+          }
+
+        val waveOffset2: Float
+          val waveOffset2$delegate: State<Float> = infiniteTransition.animateFloat(initialValue = 400.0F, targetValue = 0.0F, animationSpec = infiniteRepeatable-9IiC70o<Float>(animation = tween<Float>(durationMillis = 12000, easing = <get-FastOutSlowInEasing>()), repeatMode = #Reverse), label = "wave_motion_2", $composer = $composer, $changed = 25008.or(other = #$stable).or(other = #$stable.shl(bitCount = 9)), $default = 0)
+          local get(): Float {
+            return waveOffset2$delegate.getValue<Float>(thisObj = null, property = null)
+          }
+
+        Box(modifier = #Companion.fillMaxSize(), contentAlignment = // COMPOSITE {
+        null
+        // }, propagateMinConstraints = // COMPOSITE {
+        false
+        // }, content = { // BLOCK
+          @Composable
+          @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+          local fun BoxScope.<anonymous>(/* var */ $composer: Composer?, $changed: Int) {
+            { // BLOCK
+              sourceInformationMarkerStart(composer = $composer, key = 911238448, sourceInformation = "C446@15923L476,462@16409L479:WelcomeScreen.kt#1c6iix")
+              // COMPOSITE {
+              Box(modifier = #Companion.offset-VpY3zN4(x = <get-waveOffset1>().<get-dp>(), y = 200.<get-dp>()).alpha(alpha = 0.1F).height-3ABfNKs(height = 100.<get-dp>()).fillMaxWidth().background(brush = #Companion.verticalGradient-8A-3gB4(colors = listOf<Color>(elements = { // BLOCK
+                val tmp0: Array<out Color> = arrayOfNulls<Color>(size = 2)
+                tmp0.set(index = 0, value = Color(color = 4280391411L))
+                tmp0.set(index = 1, value = #Companion.getTransparent-0d7_KjU())
+                tmp0
+              }))), $composer = $composer, $changed = 0)
+              Box(modifier = #Companion.offset-VpY3zN4(x = <get-waveOffset2>().unaryMinus().<get-dp>(), y = 300.<get-dp>()).alpha(alpha = 0.1F).height-3ABfNKs(height = 120.<get-dp>()).fillMaxWidth().background(brush = #Companion.verticalGradient-8A-3gB4(colors = listOf<Color>(elements = { // BLOCK
+                val tmp0: Array<out Color> = arrayOfNulls<Color>(size = 2)
+                tmp0.set(index = 0, value = Color(color = 4283215696L))
+                tmp0.set(index = 1, value = #Companion.getTransparent-0d7_KjU())
+                tmp0
+              }))), $composer = $composer, $changed = 0)
+              // }
+              sourceInformationMarkerEnd(composer = $composer)
+            }
+          }
+
+          WelcomeScreenKt::<anonymous>
+        }, $composer = $composer, $changed = 6, $default = 6)
+        when {
+          isTraceInProgress() -> traceEventEnd()
+        }
+      }
+      else -> $composer.skipToGroupEnd()
+    }
+    { // BLOCK
+      { // BLOCK
+        val tmp0_safe_receiver: ScopeUpdateScope? = $composer.endRestartGroup()
+        when {
+          EQEQ(arg0 = tmp0_safe_receiver, arg1 = null) -> null
+          else -> tmp0_safe_receiver.updateScope(block = { // BLOCK
+            local fun <anonymous>($composer: Composer?, $force: Int): Unit? {
+              return InteractiveWaves($composer = $composer, $changed = updateChangedFlags(flags = $changed.or(other = 1)))
+            }
+
+            <jvm-indy-lambda-metafactory><Function2<Composer?, Int, Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+          })
+        }
+      }
+    }
+  }
+
+  @Preview
+  @Composable
+  @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
+  fun PreviewWelcomeScreen(/* var */ $composer: Composer?, $changed: Int) {
+    { // BLOCK
+      $composer = $composer.startRestartGroup(key = 2094137323)
+      sourceInformation(composer = $composer, sourceInformation = "C(PreviewWelcomeScreen)483@16966L23,483@16952L38:WelcomeScreen.kt#1c6iix")
+    }
+    when {
+      when {
+        EQEQ(arg0 = $changed, arg1 = 0).not() -> true
+        else -> $composer.<get-skipping>().not()
+      } -> { // BLOCK
+        when {
+          isTraceInProgress() -> traceEventStart(key = 2094137323, dirty1 = $changed, dirty2 = -1, info = "com.example.flyapp.ui.theme.screens.PreviewWelcomeScreen (WelcomeScreen.kt:482)")
+        }
+        WelcomeScreen(navController = rememberNavController(navigators = arrayOfNulls<Navigator<out NavDestination>>(size = 0), $composer = $composer, $changed = 0), $composer = $composer, $changed = 0)
+        when {
+          isTraceInProgress() -> traceEventEnd()
+        }
+      }
+      else -> $composer.skipToGroupEnd()
+    }
+    { // BLOCK
+      { // BLOCK
+        val tmp0_safe_receiver: ScopeUpdateScope? = $composer.endRestartGroup()
+        when {
+          EQEQ(arg0 = tmp0_safe_receiver, arg1 = null) -> null
+          else -> tmp0_safe_receiver.updateScope(block = { // BLOCK
+            local fun <anonymous>($composer: Composer?, $force: Int): Unit? {
+              return PreviewWelcomeScreen($composer = $composer, $changed = updateChangedFlags(flags = $changed.or(other = 1)))
+            }
+
+            <jvm-indy-lambda-metafactory><Function2<Composer?, Int, Unit>>(samMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, implMethodReference = WelcomeScreenKt::<anonymous>, instantiatedMethodType = &error("") /* ERROR: unsupported element type: IrRawFunctionReferenceImpl */
+, extraOverriddenMethodTypes = [], shouldBeSerializable = false)
+          })
+        }
+      }
+    }
+  }
+
+}
+
+`
+Details: Internal error in body lowering: java.util.ConcurrentModificationException: null
+	at java.base/java.util.ArrayList$Itr.next(Unknown Source)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureBuilder.seeType(ClosureAnnotator.kt:347)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureBuilder.seeType(ClosureAnnotator.kt:155)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureBuilder.seeType(ClosureAnnotator.kt:155)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:311)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCallableReference(IrElementVisitor.kt:149)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCallableReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCallableReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionReference(IrElementVisitor.kt:152)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionReference(ClosureAnnotator.kt:291)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrFunctionReference.accept(IrFunctionReference.kt:21)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.declarations.IrVariable.acceptChildren(IrVariable.kt:39)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclaration(IrElementVisitor.kt:23)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclaration(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclaration(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitVariable(IrElementVisitor.kt:71)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitVariable(ClosureAnnotator.kt:281)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitVariable(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.declarations.IrVariable.accept(IrVariable.kt:36)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitComposite(IrElementVisitor.kt:125)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrComposite.accept(IrComposite.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBlockBody.kt:23)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:86)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:92)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:50)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:263)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:65)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrBranch.acceptChildren(IrBranch.kt:32)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBranch(IrElementVisitor.kt:269)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBranch(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBranch(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBranch.accept(IrBranch.kt:25)
+	at org.jetbrains.kotlin.ir.expressions.IrWhen.acceptChildren(IrWhen.kt:27)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitWhen(IrElementVisitor.kt:266)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitWhen(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitWhen(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrWhen.accept(IrWhen.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBlockBody.kt:23)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:86)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:92)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:50)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:263)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:65)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.ir.declarations.IrClass.acceptChildren(IrClass.kt:76)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitClass(ClosureAnnotator.kt:257)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitClass(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.declarations.IrClass.accept(IrClass.kt:72)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitComposite(IrElementVisitor.kt:125)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrComposite.accept(IrComposite.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBlockBody.kt:23)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:86)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:92)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:50)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:263)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:65)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitComposite(IrElementVisitor.kt:125)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrComposite.accept(IrComposite.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBlockBody.kt:23)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:86)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:92)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:50)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:263)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:65)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitComposite(IrElementVisitor.kt:125)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitComposite(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrComposite.accept(IrComposite.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBlockBody.kt:23)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:86)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:92)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:50)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:263)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:65)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitSimpleFunction(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression.acceptChildren(IrMemberAccessExpression.kt:62)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclarationReference(IrElementVisitor.kt:95)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitDeclarationReference(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:98)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitMemberAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:101)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:285)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitFunctionAccess(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:146)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitCall(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrContainerExpression.acceptChildren(IrContainerExpression.kt:22)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitContainerExpression(IrElementVisitor.kt:119)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitContainerExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlock(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.ir.expressions.IrBranch.acceptChildren(IrBranch.kt:32)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBranch(IrElementVisitor.kt:269)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBranch(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBranch(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBranch.accept(IrBranch.kt:25)
+	at org.jetbrains.kotlin.ir.expressions.IrWhen.acceptChildren(IrWhen.kt:27)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:307)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitExpression(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitWhen(IrElementVisitor.kt:266)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitWhen(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitWhen(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrWhen.accept(IrWhen.kt:24)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBlockBody.kt:23)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:253)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitElement(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:86)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:92)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator$ClosureCollectorVisitor.visitBlockBody(ClosureAnnotator.kt:250)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.backend.common.lower.ClosureAnnotator.<init>(ClosureAnnotator.kt:40)
+	at org.jetbrains.kotlin.backend.common.lower.LocalDeclarationsLowering$LocalDeclarationsTransformer.collectClosureForLocalDeclarations(LocalDeclarationsLowering.kt:993)
+	at org.jetbrains.kotlin.backend.common.lower.LocalDeclarationsLowering$LocalDeclarationsTransformer.lowerLocalDeclarations(LocalDeclarationsLowering.kt:297)
+	at org.jetbrains.kotlin.backend.common.lower.LocalDeclarationsLowering.lower(LocalDeclarationsLowering.kt:89)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitBody$lambda$2(Lower.kt:187)
+	at org.jetbrains.kotlin.ir.declarations.StageController.restrictTo(PersistentApi.kt:11)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitBody(Lower.kt:186)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitBody(Lower.kt:165)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:92)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitBlockBody(Lower.kt:165)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitBlockBody(Lower.kt:165)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:50)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitDeclaration(Lower.kt:174)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitDeclaration(Lower.kt:165)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunction(IrElementVisitor.kt:38)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitFunction(Lower.kt:165)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitFunction(Lower.kt:165)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:65)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitSimpleFunction(Lower.kt:165)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitSimpleFunction(Lower.kt:165)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitClass(Lower.kt:180)
+	at org.jetbrains.kotlin.backend.common.BodyLoweringVisitor.visitClass(Lower.kt:165)
+	at org.jetbrains.kotlin.ir.declarations.IrClass.accept(IrClass.kt:72)
+	at org.jetbrains.kotlin.backend.common.LowerKt.runOnFilePostfix(Lower.kt:144)
+	at org.jetbrains.kotlin.backend.common.LowerKt.runOnFilePostfix$default(Lower.kt:137)
+	at org.jetbrains.kotlin.backend.common.lower.LocalDeclarationsLowering.lower(LocalDeclarationsLowering.kt:77)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseFactoriesKt.createFilePhase$lambda$4(PhaseFactories.kt:71)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseBuildersKt$createSimpleNamedCompilerPhase$1.phaseBody(PhaseBuilders.kt:69)
+	at org.jetbrains.kotlin.backend.common.phaser.SimpleNamedCompilerPhase.phaseBody(CompilerPhase.kt:226)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invokeSequential(performByIrFile.kt:62)
+	... 44 more
+Caused by: java.util.ConcurrentModificationException
+	... 638 more
+
+
