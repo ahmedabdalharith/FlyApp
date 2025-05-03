@@ -1,13 +1,13 @@
 package com.example.flyapp.ui.theme.screens
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,157 +25,62 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
-import com.example.flyapp.ui.theme.components.EnhancedBackgroundAnimations
+import com.example.flyapp.ui.theme.components.FlightTopAppBar
+import androidx.core.net.toUri
+import com.example.flyapp.ui.theme.navigition.Screen
 
-data class SettingsItem(
-    val id: String,
-    val title: String,
-    val description: String? = null,
-    val icon: Painter,
-    val hasToggle: Boolean = false,
-    val hasBadge: Boolean = false,
-    val badgeText: String = "",
-    val isDivider: Boolean = false
-)
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavHostController) {
-    // User info
-    val userName = "Alex"
-
     // Settings state
+    var darkModeEnabled by remember { mutableStateOf(true) }
     var notificationsEnabled by remember { mutableStateOf(true) }
-    var darkModeEnabled by remember { mutableStateOf(false) }
-    var locationEnabled by remember { mutableStateOf(true) }
-    var biometricEnabled by remember { mutableStateOf(false) }
-
-    // Settings items grouped by category
-    val accountSettings = listOf(
-        SettingsItem(
-            id = "profile",
-            title = "Profile",
-            description = "Personal information",
-            icon = painterResource(R.drawable.account_avatar_profile),
-            hasBadge = false
-        ),
-        SettingsItem(
-            id = "payment",
-            title = "Payment Methods",
-            description = "Credit cards and other payment options",
-            icon = painterResource(R.drawable.payment_request),
-            hasBadge = true,
-            badgeText = "2"
-        ),
-        SettingsItem(
-            id = "documents",
-            title = "Travel Documents",
-            description = "Passports, IDs, visas",
-            icon = painterResource(R.drawable.documents),
-            hasBadge = false
-        )
-    )
-
-    val appSettings = listOf(
-        SettingsItem(
-            id = "notifications",
-            title = "Notifications",
-            description = "Push and email notifications",
-            icon = painterResource(R.drawable.notification_),
-            hasToggle = true
-        ),
-        SettingsItem(
-            id = "appearance",
-            title = "Dark Mode",
-            description = "Switch between light and dark theme",
-            icon = painterResource(R.drawable.night_mode),
-            hasToggle = true
-        ),
-        SettingsItem(
-            id = "location",
-            title = "Location Services",
-            description = "Use location for better recommendations",
-            icon = painterResource(R.drawable.location),
-            hasToggle = true
-        ),
-        SettingsItem(
-            id = "biometric",
-            title = "Biometric Authentication",
-            description = "Login with fingerprint or face",
-            icon = painterResource(R.drawable.fingerprint),
-            hasToggle = true
-        )
-    )
-
-    val otherSettings = listOf(
-        SettingsItem(
-            id = "help",
-            title = "Help & Support",
-            description = "Get assistance",
-            icon = painterResource(R.drawable.help_ic),
-            hasBadge = false
-        ),
-        SettingsItem(
-            id = "privacy",
-            title = "Privacy Policy",
-            description = "How we handle your data",
-            icon = painterResource(R.drawable.security),
-            hasBadge = false
-        ),
-        SettingsItem(
-            id = "terms",
-            title = "Terms of Service",
-            description = "User agreement",
-            icon = painterResource(R.drawable.documents),
-            hasBadge = false
-        ),
-        SettingsItem(
-            id = "about",
-            title = "About",
-            description = "App version and information",
-            icon = painterResource(R.drawable.info_),
-            hasBadge = false
-        )
-    )
+    var biometricsEnabled by remember { mutableStateOf(false) }
+    var selectedLanguage by remember { mutableStateOf("English") }
+    var selectedCurrency by remember { mutableStateOf("USD") }
+    var context = LocalContext.current
+    var showRateUsDialog by remember { mutableStateOf(false) }
+    // Scroll state
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier
@@ -183,165 +88,238 @@ fun SettingsScreen(navController: NavHostController) {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF003045),
-                        Color(0xFF004D40),
-                        Color(0xFF006064)
+                        DeepBlue,     // Dark blue (matching existing screen)
+                        MediumBlue,   // Medium blue (matching existing screen)
+                        DarkNavyBlue  // Navy blue (matching existing screen)
                     )
                 )
+            ).padding(
+                bottom = 60.dp
             )
     ) {
-        // Background animations - similar to HomeScreen
-        EnhancedBackgroundAnimations()
+        // Security pattern background (matching existing screen)
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Settings",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    actions = {
-                        // User profile
-                        Box(
-                            modifier = Modifier
-                                .padding(end = 16.dp)
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .clickable { /* Open profile */ }
-                                .background(Color(0xFF1A3546)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Profile",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+            // Draw security pattern lines (like passport security pattern)
+            val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(0f, 0f),
+                end = Offset(canvasWidth, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(canvasWidth, 0f),
+                end = Offset(0f, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            // Draw circular watermark
+            val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 1f, pathEffect = pathEffect)
+            for (i in 1..5) {
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.03f),
+                    radius = canvasHeight / 3f * i / 5f,
+                    center = Offset(canvasWidth / 2f, canvasHeight / 2f),
+                    style = stroke
                 )
             }
-        ) { paddingValues ->
+        }
+
+        // Main content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+        ) {
+            // Top app bar (matching existing screen style)
+            FlightTopAppBar(
+                textOne = "SETT",
+                textTwo = "INGS",
+                navController = navController,
+                isBacked = true
+            )
+
+            // Settings content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
             ) {
-                // Profile summary at the top
-                ProfileSummaryCard(userName = userName)
+                // Profile section
+                ProfileSection(navController)
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Account Settings Section
-                SettingsSection(
-                    title = "Account",
-                    items = accountSettings,
-                    onToggle = { id, isChecked -> },
-                    onItemClick = { id ->
-                        when (id) {
-                            "profile" -> navController.navigate("profile")
-                            "payment" -> navController.navigate("payment")
-                            "documents" -> navController.navigate("documents")
+                // Preferences section
+                SettingsCard(title = "Preferences") {
+                    // Dark mode toggle
+                    SettingsToggleItem(
+                        icon = painterResource(R.drawable.night_mode),
+                        title = "Dark Mode",
+                        subtitle = "Use dark theme throughout the app",
+                        checked = darkModeEnabled,
+                        onCheckedChange = { darkModeEnabled = it }
+                    )
+
+                    SettingsDivider()
+
+                    // Notifications toggle
+                    SettingsToggleItem(
+                        icon = painterResource(R.drawable.notification_),
+                        title = "Notifications",
+                        subtitle = "Enable push notifications",
+                        checked = notificationsEnabled,
+                        onCheckedChange = { notificationsEnabled = it }
+                    )
+
+                    SettingsDivider()
+
+                    // Language selector
+                    SettingsSelectionItem(
+                        icon = painterResource(R.drawable.language_),
+                        title = "Language",
+                        value = selectedLanguage,
+                        onClick = { /* Open language selector */ }
+                    )
+
+                    SettingsDivider()
+
+                    // Currency selector
+                    SettingsSelectionItem(
+                        icon = painterResource(R.drawable.creditcard),
+                        title = "Currency",
+                        value = selectedCurrency,
+                        onClick = { /* Open currency selector */ }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Security section
+                SettingsCard(title = "Security & Privacy") {
+                    // Biometrics toggle
+                    SettingsToggleItem(
+                        icon = painterResource(R.drawable.fingerprint),
+                        title = "Biometric Authentication",
+                        subtitle = "Use fingerprint or face ID to log in",
+                        checked = biometricsEnabled,
+                        onCheckedChange = { biometricsEnabled = it }
+                    )
+
+                    SettingsDivider()
+
+                    // Privacy policy
+                    SettingsClickableItem(
+                        icon = painterResource(R.drawable.security),
+                        title = "Privacy Policy",
+                        onClick = {
+                            // Open privacy policy in browser
+                            val intent = Intent(Intent.ACTION_VIEW,
+                                "https://flyapp.com/privacy-policy".toUri())
+                            context.startActivity(intent)
                         }
-                    }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Support section
+                SettingsCard(title = "Support") {
+                    // Help center
+                    SettingsClickableItem(
+                        icon = painterResource(R.drawable.help_ic),
+                        title = "Help Center",
+                        onClick = {
+                            navController.navigate(
+                                Screen.HelpCenterScreen.route
+                            )
+                        }
+                    )
+
+                    SettingsDivider()
+
+                    // Support tickets
+                    SettingsClickableItem(
+                        icon = painterResource(R.drawable.favorite_),
+                        title = "Rate Us",
+                        onClick = {
+                            showRateUsDialog = true
+                        }                    )
+                }
+                if (showRateUsDialog) {
+                    RateUsDialog(
+                        onSubmitRating = { rating ->
+                            showRateUsDialog = false
+
+                            // If rating is high (4-5), direct to app store
+                            if (rating >= 4) {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                                        data = "market://details?id=${context.packageName}".toUri()
+                                        setPackage("com.android.vending")
+                                    }
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    // Fallback to browser if Play Store isn't available
+                                    val webIntent = Intent(Intent.ACTION_VIEW,
+                                        "https://play.google.com/store/apps/details?id=${context.packageName}".toUri())
+                                    context.startActivity(webIntent)
+                                }
+                            } else {
+                                // For lower ratings, navigate to feedback form
+                                navController.navigate(Screen.FeedbackFormScreen.route)
+                            }
+                        },
+                        onDismiss = { showRateUsDialog = false }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // App info
+                Text(
+                    text = "1.0.0",
+                    color = Color.White.copy(alpha = 0.5f),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // App Settings Section
-                SettingsSection(
-                    title = "App Settings",
-                    items = appSettings,
-                    onToggle = { id, isChecked ->
-                        when (id) {
-                            "notifications" -> notificationsEnabled = isChecked
-                            "appearance" -> darkModeEnabled = isChecked
-                            "location" -> locationEnabled = isChecked
-                            "biometric" -> biometricEnabled = isChecked
-                        }
-                    },
-                    onItemClick = { id ->
-                        // For toggleable items, clicking the row also toggles them
-                        when (id) {
-                            "notifications" -> notificationsEnabled = !notificationsEnabled
-                            "appearance" -> darkModeEnabled = !darkModeEnabled
-                            "location" -> locationEnabled = !locationEnabled
-                            "biometric" -> biometricEnabled = !biometricEnabled
-                        }
-                    },
-                    getToggleState = { id ->
-                        when (id) {
-                            "notifications" -> notificationsEnabled
-                            "appearance" -> darkModeEnabled
-                            "location" -> locationEnabled
-                            "biometric" -> biometricEnabled
-                            else -> false
-                        }
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Other Settings Section
-                SettingsSection(
-                    title = "Other",
-                    items = otherSettings,
-                    onToggle = { id, isChecked -> },
-                    onItemClick = { id ->
-                        when (id) {
-                            "help" -> navController.navigate("help")
-                            "privacy" -> navController.navigate("privacy")
-                            "terms" -> navController.navigate("terms")
-                            "about" -> navController.navigate("about")
-                        }
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Logout Button
-                EnhancedLogoutButton(
-                    onClick = {
-                        // Handle logout
-                        navController.navigate("welcome") {
-                            popUpTo("welcome") { inclusive = true }
-                        }
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
 }
 
 @Composable
-fun ProfileSummaryCard(userName: String) {
+fun ProfileSection(navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .shadow(8.dp, RoundedCornerShape(16.dp)),
+            .shadow(8.dp, RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor,       // Gold
+                        Color(0xFFFFD700), // Gold
+                        GoldColor        // Gold
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1A3546).copy(alpha = 0.9f)
-        )
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -349,54 +327,79 @@ fun ProfileSummaryCard(userName: String) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Profile picture
+            // Profile icon
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(60.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF003045)),
+                    .background(GoldColor.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Person,
+                    imageVector = Icons.Default.AccountCircle,
                     contentDescription = "Profile",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
+                    tint = GoldColor,
+                    modifier = Modifier.size(40.dp)
                 )
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // User info
+            // Profile details
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = userName,
+                    text = "Ahmed Ibrahim",
                     color = Color.White,
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
 
                 Text(
-                    text = "View and edit your profile",
+                    text = "ahmed.alharith@gmail.com",
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Check,
+                        contentDescription = "Verified",
+                        tint = GoldColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        text = "Premium Member",
+                        color = GoldColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
 
             // Edit profile button
-            IconButton(
-                onClick = { /* Navigate to profile edit */ },
+            Box(
                 modifier = Modifier
-                    .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF4CAF50).copy(alpha = 0.2f))
+                    .size(40.dp)
+                    .clickable {
+                        // Navigate to profile edit screen
+                        navController.navigate(Screen.ProfileEditorScreen.route)
+                    }
+                    .background(GoldColor.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Edit,
+                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                     contentDescription = "Edit Profile",
-                    tint = Color(0xFF4CAF50)
+                    tint = GoldColor
                 )
             }
         }
@@ -404,219 +407,354 @@ fun ProfileSummaryCard(userName: String) {
 }
 
 @Composable
-fun SettingsSection(
+fun SettingsCard(
     title: String,
-    items: List<SettingsItem>,
-    onToggle: (String, Boolean) -> Unit,
-    onItemClick: (String) -> Unit,
-    getToggleState: (String) -> Boolean = { false }
+    content: @Composable () -> Unit
 ) {
-    Column(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .shadow(4.dp, RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.5f),
+                        GoldColor.copy(alpha = 0.2f),
+                        GoldColor.copy(alpha = 0.5f)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.7f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        // Section title
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(bottom = 12.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Card title
+            Text(
+                text = title.uppercase(),
+                color = GoldColor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            HorizontalDivider(
+                color = GoldColor.copy(alpha = 0.3f),
+                thickness = 1.dp
+            )
+
+            // Card content
+            content()
+        }
+    }
+}
+
+@Composable
+fun SettingsToggleItem(
+    icon: Painter,
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Icon
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(GoldColor.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = title,
+                tint = GoldColor,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Text
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = title,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+            Text(
+                text = subtitle,
+                color = Color.White.copy(alpha = 0.7f),
+                fontSize = 12.sp
+            )
+        }
+
+        // Toggle switch with animated colors
+        val thumbColor by animateColorAsState(
+            targetValue = if (checked) GoldColor else Color.Gray,
+            animationSpec = tween(300, easing = FastOutSlowInEasing),
+            label = "thumb_color"
         )
 
-        // Section card
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = thumbColor,
+                checkedTrackColor = GoldColor.copy(alpha = 0.3f),
+                checkedBorderColor = GoldColor.copy(alpha = 0.5f),
+                uncheckedThumbColor = Color.Gray,
+                uncheckedTrackColor = Color.DarkGray.copy(alpha = 0.3f),
+                uncheckedBorderColor = Color.Gray.copy(alpha = 0.5f)
+            )
+        )
+    }
+}
+
+@Composable
+fun SettingsSelectionItem(
+    icon: Painter,
+    title: String,
+    value: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Icon
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(GoldColor.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = title,
+                tint = GoldColor,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Text
+        Text(
+            text = title,
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
+
+        // Value text
+        Text(
+            text = value,
+            color = GoldColor,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Arrow icon
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+            contentDescription = "Select",
+            tint = GoldColor,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+@Composable
+fun SettingsClickableItem(
+    icon: Painter,
+    title: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Icon
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(GoldColor.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = title,
+                tint = GoldColor,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Text
+        Text(
+            text = title,
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
+
+        // Arrow icon
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+            contentDescription = "Go",
+            tint = GoldColor,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+@Composable
+fun SettingsDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 56.dp, end = 16.dp),
+        color = GoldColor.copy(alpha = 0.2f),
+        thickness = 0.5.dp
+    )
+}
+@Composable
+fun RateUsDialog(
+    onSubmitRating: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedRating by remember { mutableIntStateOf(0) }
+
+    Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(8.dp, RoundedCornerShape(16.dp)),
+                .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF1A3546).copy(alpha = 0.9f)
-            )
+                containerColor = DarkNavyBlue
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items.forEachIndexed { index, item ->
-                    SettingsItemRow(
-                        item = item,
-                        isLast = index == items.size - 1,
-                        onToggle = { isChecked -> onToggle(item.id, isChecked) },
-                        onClick = { onItemClick(item.id) },
-                        isToggled = getToggleState(item.id)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SettingsItemRow(
-    item: SettingsItem,
-    isLast: Boolean,
-    onToggle: (Boolean) -> Unit,
-    onClick: () -> Unit,
-    isToggled: Boolean
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Icon with animated background
-            Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF003045)),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = item.icon,
-                    contentDescription = null,
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Text content
-            Column(
-                modifier = Modifier.weight(1f)
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = item.title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    text = "Rate FlyApp",
+                    color = GoldColor,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
 
-                if (item.description != null) {
-                    Text(
-                        text = item.description,
-                        fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
-                }
-            }
+                Spacer(modifier = Modifier.height(8.dp))
 
-            // Toggle, badge, or arrow
-            when {
-                item.hasToggle -> {
-                    Switch(
-                        checked = isToggled,
-                        onCheckedChange = { onToggle(it) },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = Color(0xFF4CAF50),
-                            uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Color.Gray.copy(alpha = 0.5f)
-                        )
-                    )
-                }
-                item.hasBadge -> {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF4CAF50)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = item.badgeText,
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                Text(
+                    text = "We'd love to hear your feedback!",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Star rating
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    for (i in 1..5) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (i <= selectedRating) {
+                                    R.drawable.ic_star_filled // Make sure you have this drawable
+                                } else {
+                                    R.drawable.ic_star_outline // Make sure you have this drawable
+                                }
+                            ),
+                            contentDescription = "Star $i",
+                            tint = if (i <= selectedRating) GoldColor else Color.Gray,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(horizontal = 4.dp)
+                                .clickable { selectedRating = i }
                         )
                     }
                 }
-                else -> {
-                    Icon(
-                        painter = painterResource(R.drawable.chevronright),
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.7f)
-                    )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.White.copy(alpha = 0.7f)
+                        )
+                    ) {
+                        Text("LATER")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = { onSubmitRating(selectedRating) },
+                        enabled = selectedRating > 0,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GoldColor,
+                            contentColor = Color.Black,
+                            disabledContainerColor = GoldColor.copy(alpha = 0.3f),
+                            disabledContentColor = Color.Black.copy(alpha = 0.3f)
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("SUBMIT")
+                    }
                 }
             }
         }
-
-        // Add divider if not the last item
-        if (!isLast) {
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 72.dp, end = 16.dp),
-                thickness = 1.dp,
-                color = Color.White.copy(alpha = 0.1f)
-            )
-        }
     }
 }
 
-@Composable
-fun EnhancedLogoutButton(
-    onClick: () -> Unit
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "logout_animation")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.03f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "logout_pulse"
-    )
 
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .height(50.dp)
-            .scale(scale)
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(12.dp),
-                ambientColor = Color(0xFFE57373),
-                spotColor = Color(0xFFE57373)
-            ),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFE57373)
-        )
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painterResource(R.drawable.logout),
-                contentDescription = "Logout",
-                tint = Color.White
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = "Logout",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen(navController = rememberNavController())
+    MaterialTheme {
+        SettingsScreen(navController = rememberNavController())
+    }
 }

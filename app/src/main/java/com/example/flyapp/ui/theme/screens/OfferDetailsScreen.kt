@@ -1,10 +1,19 @@
 package com.example.flyapp.ui.theme.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,37 +24,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,67 +54,145 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
-import com.example.flyapp.ui.theme.components.ParticleEffectBackground
-import com.example.flyapp.ui.theme.utils.formatDate
+import com.example.flyapp.ui.theme.components.FlightTopAppBar
+import com.example.flyapp.ui.theme.navigition.Screen
 import kotlinx.coroutines.delay
-
-// Data class for included items in the offer package
-data class OfferIncludedItem(
-    val title: String,
-    val description: String,
-    val icon: @Composable () -> Unit
-)
-
-// Data class for offer highlights
-data class OfferHighlight(
-    val title: String,
-    val description: String
-)
-
-// Data for offer details
-data class OfferDetails(
-    val offer: TravelOffer,
-    val includedItems: List<OfferIncludedItem>,
-    val highlights: List<OfferHighlight>,
-    val recommendedDates: List<String>,
-    val termsAndConditions: String
-)
-
-@OptIn(ExperimentalMaterial3Api::class)
+import java.text.NumberFormat
+import java.util.Locale
 @Composable
 fun OfferDetailsScreen(
-    navController: NavHostController,
-    offerId: String
+    navController: NavController,
+    offerId: String? = null
 ) {
-    // Dummy data retrieval - in a real app, this would come from ViewModel/Repository
-    val offerDetails = getSampleOfferDetails(offerId)
-    if (offerDetails == null) {
-        // Show error or navigate back if offer not found
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Offer not found", color = Color.White)
-        }
-        return
+    // Finding the offer from the sample data based on ID
+    val allOffers = remember {
+        listOf(
+            FlightOffer(
+                id = "FLASH001",
+                type = OfferType.FLASH_SALE,
+                title = "48-Hour Sale: NYC to London",
+                description = "Limited time offer with huge savings on direct flights",
+                departureCity = "New York",
+                departureCode = "JFK",
+                arrivalCity = "London",
+                arrivalCode = "LHR",
+                originalPrice = 799.99,
+                discountedPrice = 499.99,
+                validUntil = "May 2, 2025",
+                discountPercentage = 38,
+                isFeatured = true,
+                airline = "Sky Airways"
+            ),
+            FlightOffer(
+                id = "SEAS001",
+                type = OfferType.SEASONAL,
+                title = "Spring Getaway to Paris",
+                description = "Enjoy the beauty of Paris in spring with special rates",
+                departureCity = "Boston",
+                departureCode = "BOS",
+                arrivalCity = "Paris",
+                arrivalCode = "CDG",
+                originalPrice = 899.99,
+                discountedPrice = 649.99,
+                validUntil = "May 15, 2025",
+                discountPercentage = 28,
+                promoCode = "SPRING25",
+                airline = "Global Airlines"
+            ),
+            FlightOffer(
+                id = "LAST001",
+                type = OfferType.LAST_MINUTE,
+                title = "Last Minute: LA to Miami",
+                description = "Spontaneous trip? Grab these last-minute fares",
+                departureCity = "Los Angeles",
+                departureCode = "LAX",
+                arrivalCity = "Miami",
+                arrivalCode = "MIA",
+                originalPrice = 449.99,
+                discountedPrice = 299.99,
+                validUntil = "May 3, 2025",
+                discountPercentage = 33,
+                isFeatured = true,
+                airline = "Coastal Connect"
+            ),
+            FlightOffer(
+                id = "FREQ001",
+                type = OfferType.FREQUENT_FLYER,
+                title = "Double Miles: Chicago to Tokyo",
+                description = "Earn double miles on our premium routes",
+                departureCity = "Chicago",
+                departureCode = "ORD",
+                arrivalCity = "Tokyo",
+                arrivalCode = "HND",
+                originalPrice = 1299.99,
+                discountedPrice = 1099.99,
+                validUntil = "May 31, 2025",
+                discountPercentage = 15,
+                promoCode = "MILES2X",
+                airline = "Star Flights"
+            ),
+            FlightOffer(
+                id = "BUND001",
+                type = OfferType.BUNDLE,
+                title = "Flight + Hotel: NYC to Las Vegas",
+                description = "Complete package with 3 nights at a premium hotel",
+                departureCity = "New York",
+                departureCode = "JFK",
+                arrivalCity = "Las Vegas",
+                arrivalCode = "LAS",
+                originalPrice = 899.99,
+                discountedPrice = 699.99,
+                validUntil = "May 25, 2025",
+                discountPercentage = 22,
+                promoCode = "BUNDLE22",
+                airline = "Desert Express"
+            )
+        )
     }
 
-    val offer = offerDetails.offer
+    val selectedOffer = allOffers.find { it.id == offerId } ?: allOffers.first()
+    val formatter = NumberFormat.getCurrencyInstance(Locale.US)
+    formatter.currency = java.util.Currency.getInstance(selectedOffer.currency)
 
     // Animation states
     var showContent by remember { mutableStateOf(false) }
+    var isFavorite by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+
+    // Animation for the background effect (matching existing screens)
+    val infiniteTransition = rememberInfiniteTransition(label = "background")
+    val hologramGlow by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hologram_glow"
+    )
+
+    // Content fade-in animation
     val contentAlpha by animateFloatAsState(
         targetValue = if (showContent) 1f else 0f,
         animationSpec = tween(durationMillis = 800),
@@ -127,746 +205,709 @@ fun OfferDetailsScreen(
         showContent = true
     }
 
-    // Scroll state
-    val scrollState = rememberScrollState()
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF001034),
-                        Color(0xFF003045),
-                        Color(0xFF004D40)
+                        DeepBlue,
+                        MediumBlue,
+                        DarkNavyBlue
                     )
                 )
             )
     ) {
-        // Enhanced background animations
-        ParticleEffectBackground()
+        // Security pattern background
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Offer Details",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { /* Share offer */ }) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Share",
-                                tint = Color.White
-                            )
-                        }
-                        IconButton(onClick = { /* Add to favorites */ }) {
-                            Icon(
-                                imageVector = Icons.Rounded.FavoriteBorder,
-                                contentDescription = "Favorite",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+            // Draw security pattern lines (like passport security pattern)
+            val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(0f, 0f),
+                end = Offset(canvasWidth, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(canvasWidth, 0f),
+                end = Offset(0f, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            // Draw circular watermark
+            val stroke = Stroke(width = 1f, pathEffect = pathEffect)
+            for (i in 1..5) {
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.03f),
+                    radius = canvasHeight / 3f * i / 5f,
+                    center = Offset(canvasWidth / 2f, canvasHeight / 2f),
+                    style = stroke
                 )
-            },
-            floatingActionButton = {
-                BookNowFAB(offer = offer)
             }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(scrollState)
-                    .alpha(contentAlpha)
-            ) {
-                // Header image
-                HeaderSection(offer)
+        }
 
-                // Main content
+        // Main content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 16.dp)
+        ) {
+            // Top app bar
+            FlightTopAppBar(
+                textOne = "OFFER",
+                textTwo = "DETAILS",
+                navController= navController,
+            )
+
+            // Scrollable content
+            AnimatedVisibility(
+                visible = showContent,
+                enter = fadeIn(tween(800)) + slideInVertically(
+                    initialOffsetY = { it / 3 },
+                    animationSpec = tween(durationMillis = 800)
+                )
+            ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 16.dp)
                 ) {
-                    // Title and location
+                    // Header with offer type
+                    OfferTypeHeader(offerType = selectedOffer.type)
+
+                    // Title
                     Text(
-                        text = offer.title,
+                        text = selectedOffer.title,
                         color = Color.White,
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 16.dp)
                     )
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "${offer.destination}, ${offer.country}",
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 16.sp
-                        )
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        // Rating
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = null,
-                                tint = Color(0xFFFFD700),
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = offer.rating.toString(),
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-
-                    // Price section
-                    PriceSection(offer)
-
-                    // Valid until date
-                    ValiditySection(offer)
 
                     // Description
                     Text(
-                        text = "About this offer",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
-                    )
-
-                    Text(
-                        text = offer.description,
+                        text = selectedOffer.description,
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 16.sp,
-                        lineHeight = 24.sp
+                        modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
                     )
 
-                    // What's included section
-                    IncludedItemsSection(offerDetails.includedItems)
+                    // Flight route visualization
+                    FlightRouteCard(offer = selectedOffer)
 
-                    // Highlights Section
-                    HighlightsSection(offerDetails.highlights)
+                    // Price details
+                    PriceDetailsCard(offer = selectedOffer, formatter = formatter)
 
-                    // Recommended dates
-                    RecommendedDatesSection(offerDetails.recommendedDates)
+                    // Booking conditions
+                    BookingConditionsCard(offer = selectedOffer)
 
-                    // Feature tags
-                    FeaturesSection(offer.features)
-
-                    // Terms and conditions
-                    TermsSection(offerDetails.termsAndConditions)
+                    // Promo code if available
+                    selectedOffer.promoCode?.let {
+                        PromoCodeCard(promoCode = it)
+                    }
 
                     // Book now button
-                    BookingButton(offer)
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            // Navigate to booking screen
+                            navController.navigate(Screen.FlightDetailsScreen.route)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GoldColor,
+                            contentColor = DarkNavyBlue
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "Flight Details",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
 
-                    // Bottom spacer for FAB
-                    Spacer(modifier = Modifier.height(80.dp))
+                    // Bottom padding
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
     }
 }
-
 @Composable
-fun HeaderSection(offer: TravelOffer) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
+fun OfferTypeHeader(offerType: OfferType) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(top = 8.dp)
     ) {
-        // Image
-        Image(
-            painter = painterResource(id = R.drawable.plane_ticket), // Replace with actual image
-            contentDescription = offer.title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // Gradient overlay
         Box(
             modifier = Modifier
-                .fillMaxSize()
                 .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0x80000000),
-                            Color(0xCC000000)
-                        )
-                    )
+                    color = offerType.color(),
+                    shape = RoundedCornerShape(4.dp)
                 )
-        )
-
-        // Discount badge
-        Surface(
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.TopStart),
-            color = Color(0xFFE91E63),
-            shape = RoundedCornerShape(8.dp)
+                .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "${offer.discountPercentage}% OFF",
+                text = offerType.displayName().uppercase(),
                 color = Color.White,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
             )
         }
 
-        // Limited time badge if applicable
-        if (offer.limitedTime) {
-            Surface(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.TopEnd),
-                color = Color(0xFFFF9800),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painterResource(R.drawable.filter_ic),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Share button
+        IconButton(
+            onClick = { /* Share functionality */
+                // Implement share functionality here
+            },
+            modifier = Modifier
+                .size(36.dp)
+                .border(1.dp, GoldColor.copy(alpha = 0.5f), CircleShape)
+                .background(DarkNavyBlue.copy(alpha = 0.7f), CircleShape)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Share,
+                contentDescription = "Share",
+                tint = GoldColor,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun FlightRouteCard(offer: FlightOffer) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+            .shadow(8.dp, RoundedCornerShape(12.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Airline name if available
+            offer.airline?.let {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {
+                    Image(
+                        painterResource(R.drawable.emirates_logo),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp).clip(
+                            RoundedCornerShape(6.dp)
+                        )
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = if (offer.availableSeats != null) "${offer.availableSeats} seats left" else "Limited time",
-                        color = Color.White,
-                        fontSize = 12.sp,
+                        text = it,
+                        color = GoldColor,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = GoldColor.copy(alpha = 0.3f)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Flight route visualization
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Departure
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = offer.departureCode,
+                        color = GoldColor,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = offer.departureCity,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+
+                // Flight path visualization
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // Dashed line with plane
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        HorizontalDivider(
+                            modifier = Modifier.weight(0.4f),
+                             color = GoldColor.copy(alpha = 0.5f)
+                        )
+
+                        Icon(
+                            painterResource(R.drawable.plane_path),
+                            contentDescription = null,
+                            tint = GoldColor,
+                            modifier = Modifier.size(24.dp)
+                        )
+
+                        HorizontalDivider(
+                            modifier = Modifier.weight(0.4f),
+                            color = GoldColor.copy(alpha = 0.5f)
+                        )
+                    }
+
+                    // Flight duration (placeholder)
+                    Text(
+                        text = "Direct Flight",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+                // Arrival
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = offer.arrivalCode,
+                        color = GoldColor,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = offer.arrivalCity,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Additional flight info
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                FlightInfoChip(
+                    painterResource(R.drawable.date_range),
+                    label = "Flexible dates",
+                    iconTint = GoldColor
+                )
+
+                FlightInfoChip(
+                    painterResource(R.drawable.access_time),
+                    label = "Quick booking",
+                    iconTint = GoldColor
+                )
             }
         }
     }
 }
 
 @Composable
-fun PriceSection(offer: TravelOffer) {
+fun FlightInfoChip(
+    icon: Painter,
+    label: String,
+    iconTint: Color
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFF0A2440))
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.size(4.dp))
+        Text(
+            text = label,
+            color = Color.White,
+            fontSize = 12.sp
+        )
+    }
+}
+
+@Composable
+fun PriceDetailsCard(
+    offer: FlightOffer,
+    formatter: NumberFormat
+) {
+    val formattedOriginalPrice = formatter.format(offer.originalPrice)
+    val formattedDiscountedPrice = formatter.format(offer.discountedPrice)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = 8.dp)
+            .shadow(8.dp, RoundedCornerShape(12.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f)
+                    )
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0A2432).copy(alpha = 0.7f)
-        ),
-        shape = RoundedCornerShape(12.dp)
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painterResource(R.drawable.creditcard),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "Special Price",
+                    text = "PRICE DETAILS",
+                    color = GoldColor,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Original price
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Original Price",
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
-                Row(
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Text(
-                        text = "$${offer.discountedPrice}",
-                        color = Color(0xFF4CAF50),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "$${offer.originalPrice}",
-                        color = Color.White.copy(alpha = 0.6f),
-                        textDecoration = TextDecoration.LineThrough,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(bottom = 2.dp)
-                    )
-                }
-            }
-
-            Surface(
-                color = Color(0xFF4CAF50).copy(alpha = 0.2f),
-                shape = RoundedCornerShape(8.dp)
-            ) {
                 Text(
-                    text = "You save: $${offer.originalPrice - offer.discountedPrice}",
-                    color = Color(0xFF4CAF50),
-                    fontWeight = FontWeight.Medium,
+                    text = formattedOriginalPrice,
+                    color = Color.White.copy(alpha = 0.7f),
                     fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    textDecoration = TextDecoration.LineThrough
                 )
             }
-        }
-    }
-}
 
-@Composable
-fun ValiditySection(offer: TravelOffer) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Surface(
-            shape = CircleShape,
-            color = Color(0xFFFF9800).copy(alpha = 0.2f),
-            modifier = Modifier.size(40.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                   painterResource(R.drawable.date_range),
-                    contentDescription = null,
-                    tint = Color(0xFFFF9800),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column {
-            Text(
-                text = "Offer Valid Until",
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
-                fontSize = 16.sp
-            )
-            Text(
-                text = formatDate(offer.validUntil),
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 14.sp
-            )
-        }
-    }
-}
-
-@Composable
-fun IncludedItemsSection(includedItems: List<OfferIncludedItem>) {
-    Text(
-        text = "What's Included",
-        color = Color.White,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
-    )
-
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0A2432).copy(alpha = 0.7f)
-        ),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            includedItems.forEachIndexed { index, item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Surface(
-                        shape = CircleShape,
-                        color = Color(0xFF4CAF50).copy(alpha = 0.2f),
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            item.icon()
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column {
-                        Text(
-                            text = item.title,
-                            color = Color.White,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 16.sp
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = item.description,
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-
-                if (index < includedItems.size - 1) {
-                    Divider(
-                        color = Color.White.copy(alpha = 0.1f),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun HighlightsSection(highlights: List<OfferHighlight>) {
-    Text(
-        text = "Highlights",
-        color = Color.White,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
-    )
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        highlights.forEach { highlight ->
+            // Discount
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Surface(
-                    shape = CircleShape,
-                    color = Color(0xFF03A9F4).copy(alpha = 0.2f),
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            tint = Color(0xFF03A9F4),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column {
-                    Text(
-                        text = highlight.title,
-                        color = Color.White,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    )
-                    if (highlight.description.isNotEmpty()) {
-                        Text(
-                            text = highlight.description,
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 14.sp
-                        )
-                    }
-                }
+                Text(
+                    text = "Discount (${offer.discountPercentage}%)",
+                    color = Color(0xFF4CAF50),
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = "-${formatter.format(offer.originalPrice - offer.discountedPrice)}",
+                    color = Color(0xFF4CAF50),
+                    fontSize = 14.sp
+                )
             }
-        }
-    }
-}
 
-@Composable
-fun RecommendedDatesSection(recommendedDates: List<String>) {
-    Text(
-        text = "Recommended Travel Dates",
-        color = Color.White,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
-    )
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider( thickness = 1.dp, color = GoldColor.copy(alpha = 0.3f))
+            Spacer(modifier = Modifier.height(8.dp))
 
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(recommendedDates) { date ->
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF0A2432).copy(alpha = 0.8f)
-                ),
-                border = BorderStroke(1.dp, Color(0xFF4CAF50).copy(alpha = 0.3f)),
-                shape = RoundedCornerShape(12.dp)
+            // Final price
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        painterResource(R.drawable.date_range),
-                        contentDescription = null,
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = date,
-                        color = Color.White,
-                        fontSize = 14.sp
-                    )
-                }
+                Text(
+                    text = "Total Price",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = formattedDiscountedPrice,
+                    color = GoldColor,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
+
+            // Price per person note
+            Text(
+                text = "Price is per person, including all taxes and fees",
+                color = Color.White.copy(alpha = 0.6f),
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                textAlign = TextAlign.End
+            )
         }
     }
 }
 
 @Composable
-fun FeaturesSection(features: List<DestinationFeature>) {
-    Text(
-        text = "Features",
-        color = Color.White,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
-    )
-
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(features) { feature ->
-            FeatureChip(feature = feature)
-        }
-    }
-}
-
-@Composable
-fun TermsSection(terms: String) {
-    Text(
-        text = "Terms & Conditions",
-        color = Color.White,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
-    )
-
+fun BookingConditionsCard(offer: FlightOffer) {
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0A2432).copy(alpha = 0.7f)
-        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .shadow(8.dp, RoundedCornerShape(12.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f)
+                    )
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ),
         shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth()
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        )
     ) {
-        Row(
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = GoldColor,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    text = "BOOKING CONDITIONS",
+                    color = GoldColor,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Conditions list
+            ConditionItem(
+                label = "Offer valid until",
+                value = offer.validUntil
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ConditionItem(
+                label = "Offer type",
+                value = offer.type.displayName()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ConditionItem(
+                label = "Airline",
+                value = offer.airline ?: "Multiple airlines"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ConditionItem(
+                label = "Baggage allowance",
+                value = "Standard (1 checked item, 1 carry-on)"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ConditionItem(
+                label = "Cancellation",
+                value = "Flexible - Fee applies"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Additional notes
+            Text(
+                text = "Please review all terms before booking. Fares are subject to availability and may change without notice.",
+                color = Color.White.copy(alpha = 0.6f),
+                fontSize = 12.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun ConditionItem(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 14.sp
+        )
+        Text(
+            text = value,
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+fun PromoCodeCard(promoCode: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .shadow(8.dp, RoundedCornerShape(12.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f)
+                    )
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        )
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.Top
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.7f),
-                modifier = Modifier.size(20.dp)
+            Text(
+                text = "EXCLUSIVE PROMO CODE",
+                color = GoldColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MediumBlue)
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                GoldColor.copy(alpha = 0.7f),
+                                GoldColor.copy(alpha = 0.3f)
+                            )
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = GoldColor,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                letterSpacing = 4.sp
+                            )
+                        ) {
+                            append(promoCode)
+                        }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = terms,
+                text = "Apply this code during checkout to claim your special offer",
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp,
-                lineHeight = 20.sp
+                textAlign = TextAlign.Center
             )
         }
     }
 }
 
+
+@Preview(showBackground = true)
 @Composable
-fun BookingButton(offer: TravelOffer) {
-    Button(
-        onClick = { /* Book now */ },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp)
-            .height(56.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF4CAF50)
-        ),
-        shape = RoundedCornerShape(12.dp)
+fun OfferDetailsScreenPreview() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Text(
-            text = "Book This Offer",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+        OfferDetailsScreen(
+            navController = rememberNavController(),
+            offerId = "FLASH001"
         )
     }
 }
-
-@Composable
-fun BookNowFAB(offer: TravelOffer) {
-    FloatingActionButton(
-        onClick = { /* Quick booking */ },
-        containerColor = Color(0xFF4CAF50),
-        contentColor = Color.White
-    ) {
-        Icon(
-            painterResource(R.drawable.plane_path),
-            contentDescription = "Book Now"
-        )
-    }
-}
-
-// Helper function to get sample offer details
-private fun getSampleOfferDetails(offerId: String): OfferDetails? {
-    // This would normally come from a repository or API
-    val sampleOffer = when (offerId) {
-        "paris_spring" -> TravelOffer(
-            id = "paris_spring",
-            title = "Spring in Paris",
-            destination = "Paris",
-            country = "France",
-            description = "Experience the magic of Paris in spring with our special discount package. Stroll along the Seine River, visit world-famous museums like the Louvre and Musée d'Orsay, and enjoy authentic French cuisine at charming cafés. This package includes direct flights, 5-night accommodation at a boutique hotel in central Paris, daily breakfast, a Seine river cruise, and a guided tour of the city's highlights. Perfect for couples and cultural enthusiasts.",
-            imageResId = R.drawable.paris,
-            originalPrice = 1299.99,
-            discountedPrice = 899.99,
-            discountPercentage = 30,
-            rating = 4.7f,
-            validUntil = System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000), // Valid for 7 days
-            features = listOf(DestinationFeature.CITY, DestinationFeature.HISTORIC, DestinationFeature.FOOD),
-            limitedTime = true,
-            availableSeats = 8
-        )
-        "bali_retreat" -> TravelOffer(
-            id = "bali_retreat",
-            title = "Bali Wellness Retreat",
-            destination = "Bali",
-            country = "Indonesia",
-            description = "Rejuvenate your mind and body with our all-inclusive wellness retreat in beautiful Bali. Located amidst lush rice terraces and tropical forests, our partner resort offers the perfect setting for relaxation and self-discovery. The package includes return flights, 7 nights at a luxury wellness resort, three organic meals daily, daily yoga and meditation sessions, two traditional Balinese spa treatments, and a guided tour to ancient temples and local villages.",
-            imageResId = R.drawable.emirates_logo,
-            originalPrice = 1799.99,
-            discountedPrice = 1399.99,
-            discountPercentage = 22,
-            rating = 4.9f,
-            validUntil = System.currentTimeMillis() + (14 * 24 * 60 * 60 * 1000), // Valid for 14 days
-            features = listOf(DestinationFeature.BEACH, DestinationFeature.RELAXATION),
-            limitedTime = true,
-            availableSeats = 5
-        )
-        else -> null
-    }
-
-    if (sampleOffer == null) return null
-
-    // Return offer details
-    return OfferDetails(
-        offer = sampleOffer,
-        includedItems = listOf(
-            OfferIncludedItem(
-                title = "Return Flights",
-                description = "Direct flights from your nearest international airport with 23kg checked baggage allowance.",
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.plane_path),
-                        contentDescription = null,
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            ),
-            OfferIncludedItem(
-                title = "Premium Accommodation",
-                description = when (sampleOffer.id) {
-                    "paris_spring" -> "5 nights at a boutique hotel in central Paris, within walking distance to major attractions."
-                    "bali_retreat" -> "7 nights at a luxury wellness resort with private pool villa."
-                    else -> "Luxury accommodation at our partner hotels and resorts."
-                },
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.hotel),
-                        contentDescription = null,
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            ),
-            OfferIncludedItem(
-                title = "Exclusive Experiences",
-                description = when (sampleOffer.id) {
-                    "paris_spring" -> "Seine river cruise and guided city tour with skip-the-line access to major attractions."
-                    "bali_retreat" -> "Daily yoga and meditation sessions, two traditional Balinese spa treatments."
-                    else -> "Curated local experiences designed to immerse you in the destination."
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            )
-        ),
-        highlights = listOf(
-            OfferHighlight(
-                title = "Exclusive ${sampleOffer.discountPercentage}% discount for limited time",
-                description = ""
-            ),
-            OfferHighlight(
-                title = when (sampleOffer.id) {
-                    "paris_spring" -> "Central location near all major Paris attractions"
-                    "bali_retreat" -> "Award-winning wellness resort in tranquil setting"
-                    else -> "Premium accommodation at top-rated properties"
-                },
-                description = ""
-            ),
-            OfferHighlight(
-                title = "Flexible booking policy",
-                description = "Free cancellation up to 30 days before departure"
-            ),
-            OfferHighlight(
-                title = "Personalized itinerary assistance",
-                description = "Our travel experts will help you plan the perfect trip"
-            )
-        ),
-        recommendedDates = when (sampleOffer.id) {
-            "paris_spring" -> listOf("Apr 15-20", "May 3-8", "May 17-22", "Jun 7-12")
-            "bali_retreat" -> listOf("May 10-17", "Jun 5-12", "Jun 19-26", "Jul 8-15")
-            else -> listOf("Please contact us")
-        },
-        termsAndConditions = "Offer valid for bookings made before ${formatDate(sampleOffer.validUntil)}. Prices are per person based on double occupancy. Single supplement applies. Subject to availability. Payment in full required at time of booking. Cancellation policy applies. Flights are non-refundable once booked. Travel insurance recommended and not included in package price."
-    )
-}
-
-// Preview function for the screen (optional)
-@Composable
-@androidx.compose.ui.tooling.preview.Preview
-fun PreviewOfferDetailsScreen() {
-    val navController = rememberNavController()
-    OfferDetailsScreen(navController = navController, offerId = "paris_spring")
-}
-
-

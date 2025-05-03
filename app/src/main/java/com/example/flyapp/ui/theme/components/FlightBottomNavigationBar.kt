@@ -1,29 +1,26 @@
 package com.example.flyapp.ui.theme.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
@@ -35,21 +32,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -57,329 +49,294 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
 import com.example.flyapp.ui.theme.navigition.Screen
-import kotlinx.coroutines.delay
+import com.example.flyapp.ui.theme.screens.DarkNavyBlue
+import com.example.flyapp.ui.theme.screens.GoldColor
+import com.example.flyapp.ui.theme.screens.MediumBlue
 
 @Composable
 fun FlightBottomNavigationBar(
     navController: NavHostController,
     useRtlLayout: Boolean = false,
     notificationCounts: Map<String, Int> = emptyMap(),
+    isVisible: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
-    val currentRoute = currentDestination?.route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
 
-    // Color scheme with no white - using blue tones instead
-    val airlineBackground = Color(0xFF0A1929)
-    val airlinePrimary = Color(0xFF3BA0FF)     // Selected item color
-    val airlineSecondary = Color(0xFF81C6FF)   // Text color for selected item (instead of white)
-    val unselectedColor = Color(0xFF7F8487)    // Unselected items
+    // Performance optimization: Only recalculate when destination changes
+    val currentRoute by remember(currentDestination) {
+        derivedStateOf { currentDestination?.route }
+    }
 
-    // Wrap with RTL provider if needed
     CompositionLocalProvider(
         LocalLayoutDirection provides if (useRtlLayout) LayoutDirection.Rtl else LayoutDirection.Ltr
     ) {
-        Card(
-            modifier = modifier
-                .fillMaxWidth()
-                .shadow(
-                    elevation = 24.dp,
-                    shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
-                ),
-            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = airlineBackground
-            )
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it })
         ) {
-            // Enhanced wave effect at the top of the navigation bar
-            EnhancedWaveEffect(
-                primaryColor = airlinePrimary.copy(alpha = 0.3f),
-                secondaryColor = airlinePrimary.copy(alpha = 0.15f)
+            NavigationBarContent(
+                currentRoute = currentRoute,
+                navController = navController,
+                notificationCounts = notificationCounts,
+                modifier = modifier
             )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BottomNavItem.items.forEach { item ->
-                    val isSelected = currentRoute == item.route
-
-                    EnhancedBottomNavigationItem(
-                        icon = painterResource(id = item.icon),
-                        label = item.title,
-                        isSelected = isSelected,
-                        badgeCount = notificationCounts[item.route] ?: 0,
-                        selectedColor = airlinePrimary,
-                        unselectedColor = unselectedColor,
-                        labelColor = airlineSecondary,  // Changed from white to light blue
-                        onClick = {
-                            if (currentRoute != item.route) {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        }
-                    )
-                }
-            }
         }
     }
 }
 
 @Composable
-fun EnhancedWaveEffect(
-    primaryColor: Color,
-    secondaryColor: Color,
+private fun NavigationBarContent(
+    currentRoute: String?,
+    navController: NavHostController,
+    notificationCounts: Map<String, Int>,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "wave_animation")
-    val waveAnim1 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "wave1"
-    )
-
-    val waveAnim2 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "wave2"
-    )
-
-    Box(
+    Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(8.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(24.dp),
+                spotColor = Color(0x40000000)
+            )
+            .height(100.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MediumBlue)
     ) {
-        // First wave
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp)
-                .offset(x = (waveAnim1 * 120).dp)
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            primaryColor.copy(alpha = 0f),
-                            primaryColor,
-                            primaryColor.copy(alpha = 0f),
-                        )
-                    )
-                )
-        )
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BottomNavItem.items.forEach { item ->
+                val isSelected = currentRoute == item.route
 
-        // Second wave
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp)
-                .offset(x = (-waveAnim2 * 120).dp)
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            secondaryColor.copy(alpha = 0f),
-                            secondaryColor,
-                            secondaryColor.copy(alpha = 0f),
-                        )
-                    )
+                EnhancedNavigationItem(
+                    icon = painterResource(id = item.icon),
+                    label = item.title,
+                    isSelected = isSelected,
+                    badgeCount = notificationCounts[item.route] ?: 0,
+                    onClick = {
+                        if (currentRoute != item.route) {
+                            navigateToDestination(navController, item.route)
+                        }
+                    }
                 )
-        )
+            }
+        }
     }
 }
 
+/**
+ * Extracted navigation logic for better code organization
+ */
+private fun navigateToDestination(navController: NavHostController, route: String) {
+    navController.navigate(route) {
+        // Pop up to the start destination of the graph to
+        // avoid building up a large stack of destinations
+        popUpTo(navController.graph.findStartDestination().id) {
+            saveState = true
+        }
+        // Avoid multiple copies of the same destination
+        launchSingleTop = true
+        // Restore state when reselecting a previously selected item
+        restoreState = true
+    }
+}
+
+/**
+ * Enhanced navigation item with animations and visual effects
+ */
 @Composable
-fun EnhancedBottomNavigationItem(
+fun EnhancedNavigationItem(
     icon: Painter,
     label: String,
     isSelected: Boolean,
     badgeCount: Int = 0,
-    selectedColor: Color,
-    unselectedColor: Color,
-    labelColor: Color,
     onClick: () -> Unit
 ) {
-    // Animation scales with smoother transitions
-    val itemScale by animateFloatAsState(
+    // Animation constants for Dp values
+    val dpAnimationSpec = spring<Dp>(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+
+    // Animation constants for Float values
+    val floatAnimationSpec = spring<Float>(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+
+    val itemSize by animateDpAsState(
+        targetValue = if (isSelected) 48.dp else 40.dp,
+        animationSpec = dpAnimationSpec,
+        label = "itemSize"
+    )
+
+    val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.15f else 1f,
-        animationSpec = tween(350, easing = FastOutSlowInEasing),
+        animationSpec = floatAnimationSpec,
         label = "scale"
     )
 
-    val backgroundAlpha by animateFloatAsState(
-        targetValue = if (isSelected) 1f else 0f,
-        animationSpec = tween(350),
-        label = "bg_alpha"
-    )
-
-    // Enhanced flight animation for selected item
-    val infiniteTransition = rememberInfiniteTransition(label = "icon_hover")
-    val iconHover by infiniteTransition.animateFloat(
-        initialValue = -1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "hover"
-    )
-
-    // Enhanced bounce when first selected
-    var startAnimation by remember { mutableStateOf(false) }
-    val bounce by animateFloatAsState(
-        targetValue = if (startAnimation && isSelected) 1.25f else 1f,
-        animationSpec = tween(350, easing = FastOutSlowInEasing),
-        label = "bounce"
-    )
-
-    LaunchedEffect(isSelected) {
-        if (isSelected) {
-            startAnimation = true
-            delay(350)
-            startAnimation = false
-        }
-    }
+    val color = if (isSelected) GoldColor else Color.White.copy(alpha = 0.6f)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .scale(itemScale)
-            .clip(RoundedCornerShape(20.dp))
+            .padding(4.dp)
+            .width(72.dp)
+            .scale(scale)
             .clickable(onClick = onClick)
-            .padding(8.dp)
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            // Enhanced background glow effect when selected
-            if (isSelected) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .alpha(backgroundAlpha * 0.4f)
-                        .background(
-                            selectedColor,
-                            CircleShape
-                        )
-                        .blur(radius = 4.dp)
-                )
-            }
+        NavigationItemIcon(
+            icon = icon,
+            label = label,
+            isSelected = isSelected,
+            badgeCount = badgeCount,
+            color = color,
+            itemSize = itemSize
+        )
 
-            // Badge with improved visibility
-            BadgedBox(
-                badge = {
-                    if (badgeCount > 0) {
-                        Badge(
-                            containerColor = Color(0xFFFF3D71),
-                            modifier = Modifier
-                                .offset(x = 3.dp, y = (-3).dp)
-                                .shadow(2.dp, CircleShape)
-                        ) {
-                            Text(
-                                text = if (badgeCount > 99) "99+" else badgeCount.toString(),
-                                color = Color(0xFFDCEAFF),  // Light blue instead of white
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 3.dp)
-                            )
-                        }
-                    }
-                }
-            ) {
-                // Icon with enhanced hover effect when selected
-                Icon(
-                    painter = icon,
-                    contentDescription = label,
-                    tint = if (isSelected) selectedColor else unselectedColor,
-                    modifier = Modifier
-                        .size(if (isSelected) 28.dp else 24.dp)
-                        .scale(bounce)
-                        .offset(y = if (isSelected) (iconHover * 1.5f).dp else 0.dp)
-                        .graphicsLayer {
-                            if (isSelected) {
-                                alpha = 0.9f + (iconHover * 0.1f)
-                            }
-                        }
-                )
-            }
+        // Label is only visible when item is selected
+        if (isSelected) {
+            NavigationItemLabel(label = label, color = color)
         }
+    }
+}
 
-        // Title with enhanced animation - using blue instead of white
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            Text(
-                text = label,
-                color = if (isSelected) labelColor else unselectedColor,
-                fontSize = 12.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                textAlign = TextAlign.Center,
+@Composable
+private fun NavigationItemIcon(
+    icon: Painter,
+    label: String,
+    isSelected: Boolean,
+    badgeCount: Int,
+    color: Color,
+    itemSize: androidx.compose.ui.unit.Dp
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(itemSize)
+    ) {
+        // Background circle for selected item
+        if (isSelected) {
+            Box(
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .graphicsLayer {
-                        if (isSelected) {
-                            alpha = 0.9f + (iconHover * 0.1f)
-                        }
-                    }
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color(0x10FFFFFF))
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                GoldColor.copy(alpha = 0.8f),
+                                GoldColor.copy(alpha = 0.3f)
+                            )
+                        ),
+                        shape = CircleShape
+                    )
             )
         }
 
-        // Enhanced indicator dot when selected
-        AnimatedVisibility(
-            visible = isSelected,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
+        // Badge with notification count
+        BadgedBox(
+            badge = {
+                if (badgeCount > 0) {
+                    Badge(
+                        containerColor = Color(0xFFFF3D71),
+                        contentColor = Color.White
+                    ) {
+                        Text(
+                            text = if (badgeCount > 99) "99+" else badgeCount.toString(),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 3.dp)
+                        )
+                    }
+                }
+            }
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 2.dp)
-                    .size(4.dp)
-                    .background(selectedColor, CircleShape)
+            Icon(
+                painter = icon,
+                contentDescription = label,
+                tint = color,
+                modifier = Modifier.size(26.dp)
             )
         }
     }
 }
 
+@Composable
+private fun NavigationItemLabel(label: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            color = color,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            maxLines = 1
+        )
+
+        // Gold indicator line for selected item
+        Box(
+            modifier = Modifier
+                .padding(top = 2.dp)
+                .height(2.dp)
+                .width(20.dp)
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            GoldColor.copy(alpha = 0.3f),
+                            GoldColor,
+                            GoldColor.copy(alpha = 0.3f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(1.dp)
+                )
+        )
+    }
+}
+
+/**
+ * Navigation items for the bottom navigation bar
+ */
 sealed class BottomNavItem(val route: String, val icon: Int, val title: String) {
     object Home : BottomNavItem(route = Screen.HomeScreen.route, icon = R.drawable.home_, title = "Home")
     object Offers : BottomNavItem(Screen.OffersScreen.route, icon = R.drawable.explore_ic, title = "Offers")
     object Trips : BottomNavItem(Screen.TripManagementScreen.route, icon = R.drawable.receipt_ic, title = "My Trips")
-    object HelpCenter : BottomNavItem(Screen.HelpCenterScreen.route, icon = R.drawable.help_ic, title = "Help")
+    object Search : BottomNavItem(Screen.SearchFlightScreen.route, icon = R.drawable.search, title = "Search")
+    object SettingsScreen : BottomNavItem(Screen.SettingsScreen.route, icon = R.drawable.settings, title = "Settings")
 
     companion object {
-        val items = listOf(Home, Offers, Trips, HelpCenter)
+        val items = listOf(Home, Offers, Trips, Search, SettingsScreen)
     }
 }
 
 @Preview
 @Composable
-fun FlightBottomNavigationBarPreview() {
+fun EnhancedFlightBottomNavigationBarPreview() {
     val mockNotifications = mapOf(
         Screen.OffersScreen.route to 3,
         Screen.TripManagementScreen.route to 7
     )
 
-    Surface(color = Color(0xFF102C44)) {
+    Surface(color = Color(0xFF1467BF)) {
         Column(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.padding(bottom = 16.dp)

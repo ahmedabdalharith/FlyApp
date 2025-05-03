@@ -1,45 +1,41 @@
 package com.example.flyapp.ui.theme.screens
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,15 +43,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,671 +59,728 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
-import com.example.flyapp.ui.theme.components.ParticleEffectBackground
-import com.example.flyapp.ui.theme.data.models.SeatInfo
-import com.example.flyapp.ui.theme.data.models.SeatRow
-import com.example.flyapp.ui.theme.data.models.SeatType
+import com.example.flyapp.ui.theme.components.FlightTopAppBar
 import com.example.flyapp.ui.theme.navigition.Screen
+import kotlinx.coroutines.delay
 
+// Seat status definitions
+enum class SeatStatus {
+    AVAILABLE,
+    SELECTED,
+    OCCUPIED,
+    FIRST_CLASS,
+    BUSINESS_CLASS,
+    ECONOMY_CLASS
+}
 
+data class Seat(
+    val id: String,
+    var status: SeatStatus,
+    var type: SeatStatus = SeatStatus.ECONOMY_CLASS
+)
+// Make sure your FlightStatus data class includes a progress property
+data class FlightStatusMap(
+    val flightNumber: String,
+    val departure: String,
+    val destination: String,
+    val departureTime: String,
+    val arrivalTime: String,
+    val date: String,
+    val status: FlightStatusType,
+    val gate: String,
+    val terminal: String,
+    val boardingTime: String,
+    val progress: Float = 0f  // Make sure this line exists
+)
 @Composable
-fun AirplaneSeatsScreen(navController: NavHostController) {
-    // Create cabin layout
-    val firstClassRows = (1..2)
-    val businessRows = (3..7)
-    val economyRows = (8..32)
+fun AirplaneSeatsScreen(
+    navController: NavHostController,
+    flightNumber: String = "FLY-1234",
+    departure: String = "New York (JFK)",
+    destination: String = "London (LHR)",
+    date: String = "30 Apr 2025",
+    time: String = "14:30"
+) {
+    // State for selected seats
+    val selectedSeats = remember { mutableStateListOf<String>() }
 
-    val allRows = remember {
-        buildList {
-            firstClassRows.forEach { add(SeatRow(it, SeatType.FIRST_CLASS)) }
-            businessRows.forEach { add(SeatRow(it, SeatType.BUSINESS)) }
-            economyRows.forEach { add(SeatRow(it, SeatType.ECONOMY)) }
-        }
-    }
+    // State for price calculation
+    var totalPrice by remember { mutableLongStateOf(0L) }
 
-    // Create seats data
+    // Airplane seating data
     val seats = remember {
-        mutableStateListOf<SeatInfo>().apply {
-            // First class seats (2 on each side)
-            firstClassRows.forEach { row ->
-                // Left side
-                add(SeatInfo("${row}A", row, "A", SeatType.FIRST_CLASS, false, Math.random() > 0.3))
-                add(SeatInfo("${row}B", row, "B", SeatType.FIRST_CLASS, false, Math.random() > 0.3))
+        val seatList = mutableListOf<Seat>()
 
-                // Right side
-                add(SeatInfo("${row}J", row, "J", SeatType.FIRST_CLASS, false, Math.random() > 0.3))
-                add(SeatInfo("${row}K", row, "K", SeatType.FIRST_CLASS, false, Math.random() > 0.3))
+        // Generate 30 rows of seats
+        for (row in 1..30) {
+            val seatType = when (row) {
+                in 1..2 -> SeatStatus.FIRST_CLASS // Rows 1-2 are first class
+                in 3..7 -> SeatStatus.BUSINESS_CLASS // Rows 3-7 are business class
+                else -> SeatStatus.ECONOMY_CLASS // The rest are economy
             }
 
-            // Business class seats (2-2-2 configuration)
-            businessRows.forEach { row ->
-                // Left side
-                add(SeatInfo("${row}A", row, "A", SeatType.BUSINESS, false, Math.random() > 0.3))
-                add(SeatInfo("${row}C", row, "C", SeatType.BUSINESS, false, Math.random() > 0.3))
+            // Seats A-F (6 per row)
+            for (column in 'A'..'F') {
+                val seatId = "$row$column"
 
-                // Middle
-                add(SeatInfo("${row}D", row, "D", SeatType.BUSINESS, false, Math.random() > 0.3))
-                add(SeatInfo("${row}G", row, "G", SeatType.BUSINESS, false, Math.random() > 0.3))
+                // Randomly mark some seats as occupied
+                val isPreoccupied = when {
+                    row <= 2 -> Math.random() < 0.7 // 70% of first class seats are taken
+                    row <= 7 -> Math.random() < 0.6 // 60% of business class seats are taken
+                    else -> Math.random() < 0.4 // 40% of economy seats are taken
+                }
 
-                // Right side
-                add(SeatInfo("${row}H", row, "H", SeatType.BUSINESS, false, Math.random() > 0.3))
-                add(SeatInfo("${row}K", row, "K", SeatType.BUSINESS, false, Math.random() > 0.3))
+                val status = if (isPreoccupied) SeatStatus.OCCUPIED else SeatStatus.AVAILABLE
+                seatList.add(Seat(id = seatId, status = status, type = seatType))
             }
+        }
+        seatList
+    }
 
-            // Economy class seats (3-3-3 configuration)
-            economyRows.forEach { row ->
-                // Left section
-                add(SeatInfo("${row}A", row, "A", SeatType.ECONOMY, false, Math.random() > 0.3))
-                add(SeatInfo("${row}B", row, "B", SeatType.ECONOMY, false, Math.random() > 0.3))
-                add(SeatInfo("${row}C", row, "C", SeatType.ECONOMY, false, Math.random() > 0.3))
+    // Seat legend animation
+    var showLegend by remember { mutableStateOf(false) }
 
-                // Middle section
-                add(SeatInfo("${row}D", row, "D", SeatType.ECONOMY, false, Math.random() > 0.3))
-                add(SeatInfo("${row}E", row, "E", SeatType.ECONOMY, false, Math.random() > 0.3))
-                add(SeatInfo("${row}F", row, "F", SeatType.ECONOMY, false, Math.random() > 0.3))
+    // Animation for plane diagram
+    var isPlaneVisible by remember { mutableStateOf(false) }
 
-                // Right section
-                add(SeatInfo("${row}G", row, "G", SeatType.ECONOMY, false, Math.random() > 0.3))
-                add(SeatInfo("${row}H", row, "H", SeatType.ECONOMY, false, Math.random() > 0.3))
-                add(SeatInfo("${row}K", row, "K", SeatType.ECONOMY, false, Math.random() > 0.3))
+    LaunchedEffect(key1 = Unit) {
+        delay(300)
+        isPlaneVisible = true
+        delay(500)
+        showLegend = true
+    }
+
+    // Calculate total price whenever selected seats change
+    LaunchedEffect(selectedSeats) {
+        totalPrice = selectedSeats.sumOf { seatId ->
+            val row = seatId.substring(0, seatId.length - 1).toInt()
+            when {
+                row <= 2 -> 450L // First class
+                row <= 7 -> 250L // Business class
+                else -> 120L // Economy class
             }
         }
     }
 
-    var selectedSeats = remember { mutableStateListOf<String>() }
-    var currentClassView by remember { mutableStateOf(SeatType.ECONOMY) }
-
+    // Main background with gradient
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
+                brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF001034),
-                        Color(0xFF003045),
-                        Color(0xFF004D40)
+                        DeepBlue,
+                        MediumBlue,
+                        DarkNavyBlue
                     )
                 )
             )
     ) {
-        // Background star particles
-        ParticleEffectBackground()
+        // Security pattern background (matching payment screen)
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
 
-        // Main content
+            // Draw security pattern lines (like passport security pattern)
+            val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(0f, 0f),
+                end = Offset(canvasWidth, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(canvasWidth, 0f),
+                end = Offset(0f, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            // Draw circular watermark
+            val stroke = Stroke(width = 1f, pathEffect = pathEffect)
+            for (i in 1..5) {
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.03f),
+                    radius = canvasHeight / 3f * i / 5f,
+                    center = Offset(canvasWidth / 2f, canvasHeight / 2f),
+                    style = stroke
+                )
+            }
+        }
+
+        // Main content column
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(rememberScrollState())
         ) {
-            // Header with Flight Info
-            FlightInfoHeader()
-
-            // Class selector tabs
-            ClassSelectorTabs(
-                currentClass = currentClassView,
-                onClassSelected = { currentClassView = it }
+            // Top app bar
+            FlightTopAppBar(
+                textOne = "FLY",
+                textTwo = "APP",
+                navController= navController,
             )
 
-            // Cabin visualization
-            AirplaneCabinView(currentClassView)
-
-            // Seats grid inside cabin view
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF0A192F).copy(alpha = 0.85f)
-                ),
-                shape = RoundedCornerShape(16.dp)
+            // Flight info card
+            AnimatedVisibility(
+                visible = isPlaneVisible,
+                enter = fadeIn(animationSpec = tween(800)) +
+                        slideInVertically(
+                            animationSpec = tween(1000),
+                            initialOffsetY = { it / 3 }
+                        )
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 4.dp, vertical = 8.dp)
-                ) {
-                    // Header legend
-                    SeatsLegend()
+                FlightInfoCard(
+                    flightNumber = flightNumber,
+                    departure = departure,
+                    destination = destination,
+                    date = date,
+                    time = time
+                )
+            }
 
-                    // Divider
-                    Divider(
-                        color = Color(0xFF64B5F6).copy(alpha = 0.3f),
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    // Seats rows
-                    LazyColumn(
-                        contentPadding = PaddingValues(vertical = 8.dp)
-                    ) {
-                        val rowsToShow = when (currentClassView) {
-                            SeatType.FIRST_CLASS -> allRows.filter { it.seatType == SeatType.FIRST_CLASS }
-                            SeatType.BUSINESS -> allRows.filter { it.seatType == SeatType.BUSINESS }
-                            SeatType.ECONOMY -> allRows.filter { it.seatType == SeatType.ECONOMY }
-                        }
-
-                        itemsIndexed(rowsToShow) { index, rowData ->
-                            val rowNumber = rowData.rowNumber
-                            val rowSeats = seats.filter { it.row == rowNumber }
-
-                            SeatRowItem(
-                                rowNumber = rowNumber,
-                                seats = rowSeats,
-                                seatType = rowData.seatType,
-                                onSeatSelected = { seat ->
-                                    if (seat.isAvailable) {
-                                        val targetSeat = seats.find { it.id == seat.id }
-                                        targetSeat?.let {
-                                            it.isSelected = !it.isSelected
-                                            if (it.isSelected) {
-                                                selectedSeats.add(it.id)
-                                            } else {
-                                                selectedSeats.remove(it.id)
-                                            }
-                                        }
-                                    }
+            // Airplane diagram
+            AnimatedVisibility(
+                visible = isPlaneVisible,
+                enter = fadeIn(animationSpec = tween(1000)) +
+                        scaleIn(
+                            animationSpec = tween(1000),
+                            initialScale = 0.95f
+                        )
+            ) {
+                AirplaneDiagram(
+                    seats = seats,
+                    selectedSeats = selectedSeats,
+                    onSeatSelected = { seat ->
+                        val seatIndex = seats.indexOfFirst { it.id == seat.id }
+                        if (seatIndex != -1) {
+                            when (seats[seatIndex].status) {
+                                SeatStatus.AVAILABLE -> {
+                                    seats[seatIndex] = seats[seatIndex].copy(status = SeatStatus.SELECTED)
+                                    selectedSeats.add(seat.id)
                                 }
-                            )
-
-                            // Add some space between cabin sections
-                            if (index == firstClassRows.count() - 1 || index == firstClassRows.count() + businessRows.count() - 1) {
-                                CabinDivider()
+                                SeatStatus.SELECTED -> {
+                                    seats[seatIndex] = seats[seatIndex].copy(status = SeatStatus.AVAILABLE)
+                                    selectedSeats.remove(seat.id)
+                                }
+                                else -> { /* Seat is occupied, do nothing */ }
                             }
                         }
                     }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Seat legend
+            AnimatedVisibility(
+                visible = showLegend,
+                enter = fadeIn(animationSpec = tween(500)) + expandVertically(tween(700))
+            ) {
+                SeatLegend()
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Selected seats summary
+            AnimatedVisibility(
+                visible = selectedSeats.isNotEmpty(),
+                enter = fadeIn(animationSpec = tween(300)) + expandVertically(tween(500))
+            ) {
+                SelectedSeatsCard(
+                    selectedSeats = selectedSeats,
+                    totalPrice = totalPrice
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Continue button
+            AnimatedVisibility(
+                visible = selectedSeats.isNotEmpty(),
+                enter = fadeIn(animationSpec = tween(500)) + expandVertically(tween(700))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            navController.navigate(
+                                Screen.PaymentScreen.route + "?selectedSeats=${selectedSeats.joinToString(",")}"
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GoldColor,
+                            contentColor = DarkNavyBlue
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "CONTINUE TO PAYMENT",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "You can select up to 6 seats per booking",
+                        fontSize = 12.sp,
+                        color = Color.White.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
 
-            // Selected seats info and continue button
-            SelectedSeatsInfo(
-                selectedSeats = selectedSeats.toList(),
-                onContinueClick = {
-                    // Navigate to payment/confirmation screen
-                    navController.navigate(Screen.PaymentScreen.route)
-                }
-            )
+            // Bottom spacer for scrolling
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-fun FlightInfoHeader() {
+fun FlightInfoCard(
+    flightNumber: String,
+    departure: String,
+    destination: String,
+    date: String,
+    time: String
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF002650).copy(alpha = 0.7f)
-        ),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Departure info
-            Column(horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = "Riyadh",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = "RUH",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp
-                )
-                Text(
-                    text = "10:30 AM",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp
-                )
-            }
-
-            // Flight details
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Animated plane icon
-                val infiniteTransition = rememberInfiniteTransition(label = "plane_animation")
-                val offsetY by infiniteTransition.animateFloat(
-                    initialValue = -3f,
-                    targetValue = 3f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(1000, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "plane_float"
-                )
-
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .offset(y = offsetY.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Glow behind plane
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        drawCircle(
-                            color = Color(0xFF64B5F6).copy(alpha = 0.4f),
-                            radius = size.minDimension / 2,
-                            center = center
-                        )
-                    }
-
-                    // Plane icon
-                    Image(
-                        painter = painterResource(R.drawable.hotel),
-                        contentDescription = "Flight",
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-
-                Text(
-                    text = "Flight SV 1734",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
-
-                Text(
-                    text = "2h 15m",
-                    color = Color(0xFFBAE6FF),
-                    fontSize = 12.sp
-                )
-            }
-
-            // Arrival info
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "Dubai",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = "DXB",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp
-                )
-                Text(
-                    text = "12:45 PM",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ClassSelectorTabs(currentClass: SeatType, onClassSelected: (SeatType) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        SeatTypeTab(
-            title = "First Class",
-            isSelected = currentClass == SeatType.FIRST_CLASS,
-            color = Color(0xFFFFD700),
-            onClick = { onClassSelected(SeatType.FIRST_CLASS) }
-        )
-
-        SeatTypeTab(
-            title = "Business Class",
-            isSelected = currentClass == SeatType.BUSINESS,
-            color = Color(0xFF03A9F4),
-            onClick = { onClassSelected(SeatType.BUSINESS) }
-        )
-
-        SeatTypeTab(
-            title = "Economy Class",
-            isSelected = currentClass == SeatType.ECONOMY,
-            color = Color(0xFF4CAF50),
-            onClick = { onClassSelected(SeatType.ECONOMY) }
-        )
-    }
-}
-
-@Composable
-fun SeatTypeTab(title: String, isSelected: Boolean, color: Color, onClick: () -> Unit) {
-    val infiniteTransition = rememberInfiniteTransition(label = "tab_animation")
-    val glow by infiniteTransition.animateFloat(
-        initialValue = 0.7f,
-        targetValue = 1.0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "tab_glow"
-    )
-
-    val scale = if (isSelected) 1.05f else 1f
-    val alpha = if (isSelected) 1f else 0.6f
-    val borderAlpha = if (isSelected) glow else 0f
-
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(
-                if (isSelected) color.copy(alpha = 0.2f) else Color.Transparent
-            )
+            .padding(16.dp)
+            .shadow(8.dp, RoundedCornerShape(16.dp))
             .border(
                 width = 1.dp,
-                color = color.copy(alpha = borderAlpha),
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor,
+                        Color(0xFFFFD700),
+                        GoldColor
+                    )
+                ),
                 shape = RoundedCornerShape(16.dp)
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-            .scale(scale),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = title,
-            color = color.copy(alpha = alpha),
-            fontSize = 12.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-        )
-    }
-}
-
-@Composable
-fun AirplaneCabinView(currentClass: SeatType) {
-    val cabinColor = when (currentClass) {
-        SeatType.FIRST_CLASS -> Color(0xFFFFD700)
-        SeatType.BUSINESS -> Color(0xFF03A9F4)
-        SeatType.ECONOMY -> Color(0xFF4CAF50)
-    }
-
-    // Animation for cabin glow
-    val infiniteTransition = rememberInfiniteTransition(label = "cabin_animation")
-    val glowIntensity by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
         ),
-        label = "cabin_glow"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .padding(vertical = 8.dp),
-        contentAlignment = Alignment.Center
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        // Background glow
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            // Main cabin body
-            val cabinPath = Path().apply {
-                val width = size.width
-                val height = size.height
-
-                // Draw fuselage shape
-                moveTo(width * 0.1f, height * 0.5f)
-                quadraticTo(width * 0.1f, height * 0.2f, width * 0.2f, height * 0.2f)
-                lineTo(width * 0.8f, height * 0.2f)
-                quadraticTo(width * 0.9f, height * 0.2f, width * 0.9f, height * 0.5f)
-                quadraticTo(width * 0.9f, height * 0.8f, width * 0.8f, height * 0.8f)
-                lineTo(width * 0.2f, height * 0.8f)
-                quadraticTo(width * 0.1f, height * 0.8f, width * 0.1f, height * 0.5f)
-                close()
-            }
-
-            // Draw cabin outline with glow
-            drawPath(
-                path = cabinPath,
-                color = cabinColor.copy(alpha = 0.2f),
-            )
-
-            // Draw cabin outline
-            drawPath(
-                path = cabinPath,
-                color = cabinColor.copy(alpha = glowIntensity),
-                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-            )
-
-            // Cabin windows visualization based on class
-            when (currentClass) {
-                SeatType.FIRST_CLASS -> {
-                    // Fewer, larger windows for first class
-                    for (i in 1..4) {
-                        val x = size.width * (0.2f + i * 0.15f)
-                        drawCircle(
-                            color = cabinColor.copy(alpha = 0.6f),
-                            radius = size.width * 0.02f,
-                            center = Offset(x, size.height * 0.2f)
-                        )
-                        drawCircle(
-                            color = cabinColor.copy(alpha = 0.6f),
-                            radius = size.width * 0.02f,
-                            center = Offset(x, size.height * 0.8f)
-                        )
-                    }
-                }
-                SeatType.BUSINESS -> {
-                    // Medium density windows
-                    for (i in 1..6) {
-                        val x = size.width * (0.2f + i * 0.1f)
-                        drawCircle(
-                            color = cabinColor.copy(alpha = 0.6f),
-                            radius = size.width * 0.015f,
-                            center = Offset(x, size.height * 0.2f)
-                        )
-                        drawCircle(
-                            color = cabinColor.copy(alpha = 0.6f),
-                            radius = size.width * 0.015f,
-                            center = Offset(x, size.height * 0.8f)
-                        )
-                    }
-                }
-                SeatType.ECONOMY -> {
-                    // Many, smaller windows for economy
-                    for (i in 1..10) {
-                        val x = size.width * (0.15f + i * 0.07f)
-                        drawCircle(
-                            color = cabinColor.copy(alpha = 0.6f),
-                            radius = size.width * 0.01f,
-                            center = Offset(x, size.height * 0.2f)
-                        )
-                        drawCircle(
-                            color = cabinColor.copy(alpha = 0.6f),
-                            radius = size.width * 0.01f,
-                            center = Offset(x, size.height * 0.8f)
-                        )
-                    }
-                }
-            }
-
-            // Draw cabin aisle
-            drawLine(
-                color = cabinColor.copy(alpha = 0.4f),
-                start = Offset(size.width * 0.1f, size.height * 0.5f),
-                end = Offset(size.width * 0.9f, size.height * 0.5f),
-                strokeWidth = 2.dp.toPx()
-            )
-
-            // Draw aisle markers
-            for (i in 0..10) {
-                val x = size.width * (0.1f + i * 0.08f)
-                drawLine(
-                    color = cabinColor.copy(alpha = 0.2f),
-                    start = Offset(x, size.height * 0.45f),
-                    end = Offset(x, size.height * 0.55f),
-                    strokeWidth = 1.dp.toPx()
-                )
-            }
-        }
-
-        // Class type label
-        Text(
-            text = when (currentClass) {
-                SeatType.FIRST_CLASS -> "First Class"
-                SeatType.BUSINESS -> "Business Class"
-                SeatType.ECONOMY -> "Economy Class"
-            },
-            color = cabinColor,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-fun SeatsLegend() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        LegendItem(color = Color(0xFF4CAF50), text = "Available")
-        LegendItem(color = Color(0xFFFF5722), text = "Occupied")
-        LegendItem(color = Color(0xFF2196F3), text = "Selected")
-        LegendItem(color = Color(0xFFE0E0E0).copy(alpha = 0.5f), text = "Exit Row")
-    }
-}
-
-@Composable
-fun LegendItem(color: Color, text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(12.dp)
-                .background(color, RoundedCornerShape(2.dp))
-        )
-        Text(
-            text = text,
-            color = Color.White.copy(alpha = 0.8f),
-            fontSize = 10.sp
-        )
-    }
-}
-
-@Composable
-fun SeatRowItem(
-    rowNumber: Int,
-    seats: List<SeatInfo>,
-    seatType: SeatType,
-    onSeatSelected: (SeatInfo) -> Unit
-) {
-    // Show different seat layouts based on class
-    val layout = when (seatType) {
-        SeatType.FIRST_CLASS -> {
-            // 2-0-2 layout for first class
-            val leftSeats = seats.filter { it.column in listOf("A", "B") }.sortedBy { it.column }
-            val rightSeats = seats.filter { it.column in listOf("J", "K") }.sortedBy { it.column }
-            Triple(leftSeats, emptyList(), rightSeats)
-        }
-        SeatType.BUSINESS -> {
-            // 2-2-2 layout for business
-            val leftSeats = seats.filter { it.column in listOf("A", "C") }.sortedBy { it.column }
-            val middleSeats = seats.filter { it.column in listOf("D", "G") }.sortedBy { it.column }
-            val rightSeats = seats.filter { it.column in listOf("H", "K") }.sortedBy { it.column }
-            Triple(leftSeats, middleSeats, rightSeats)
-        }
-        SeatType.ECONOMY -> {
-            // 3-3-3 layout for economy
-            val leftSeats = seats.filter { it.column in listOf("A", "B", "C") }.sortedBy { it.column }
-            val middleSeats = seats.filter { it.column in listOf("D", "E", "F") }.sortedBy { it.column }
-            val rightSeats = seats.filter { it.column in listOf("G", "H", "K") }.sortedBy { it.column }
-            Triple(leftSeats, middleSeats, rightSeats)
-        }
-    }
-
-    // Check if this row is an emergency exit row
-    val isExitRow = rowNumber in listOf(8, 21)
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp, horizontal = 8.dp)
-            .background(
-                if (isExitRow) Color(0xFF1E3E5E) else Color.Transparent,
-                RoundedCornerShape(4.dp)
-            )
-    ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = if (isExitRow) 6.dp else 2.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            // Left section
+            // Flight number
             Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(start = 4.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                layout.first.forEach { seat ->
-                    SeatItem(
-                        seat = seat,
-                        seatType = seatType,
-                        onSeatSelected = { onSeatSelected(seat) }
-                    )
-                }
-            }
-
-            // Row number with icon if exit row
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                if (isExitRow) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Exit Row",
-                        tint = Color(0xFF64B5F6),
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(modifier = Modifier.width(2.dp))
-                }
+                Text(
+                    text = "SELECT YOUR SEATS",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = GoldColor
+                )
 
                 Text(
-                    text = rowNumber.toString(),
-                    color = if (isExitRow) Color(0xFF64B5F6) else Color.White.copy(alpha = 0.6f),
-                    fontSize = 12.sp,
-                    fontWeight = if (isExitRow) FontWeight.Bold else FontWeight.Normal
+                    text = flightNumber,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.8f)
                 )
             }
 
-            // Middle section (if any)
-            if (layout.second.isNotEmpty()) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
+
+            // Route info
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Departure
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    layout.second.forEach { seat ->
-                        SeatItem(
-                            seat = seat,
-                            seatType = seatType,
-                            onSeatSelected = { onSeatSelected(seat) }
-                        )
-                    }
+                    Text(
+                        text = "FROM",
+                        fontSize = 12.sp,
+                        color = GoldColor.copy(alpha = 0.8f)
+                    )
+                    Text(
+                        text = departure,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
+                }
+
+                // Flight path icon
+                Icon(
+                    painter = painterResource(id = R.drawable.plane_path),
+                    contentDescription = "Flight path",
+                    tint = GoldColor,
+                    modifier = Modifier.size(24.dp)
+                )
+
+                // Destination
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "TO",
+                        fontSize = 12.sp,
+                        color = GoldColor.copy(alpha = 0.8f)
+                    )
+                    Text(
+                        text = destination,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
                 }
             }
 
-            // Right section
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
+
+            // Date and time
             Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(end = 4.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                layout.third.forEach { seat ->
-                    SeatItem(
-                        seat = seat,
-                        seatType = seatType,
-                        onSeatSelected = { onSeatSelected(seat) }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.date_range),
+                        contentDescription = "Date",
+                        tint = GoldColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = date,
+                        fontSize = 14.sp,
+                        color = Color.White
                     )
                 }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.access_time),
+                        contentDescription = "Time",
+                        tint = GoldColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = time,
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AirplaneDiagram(
+    seats: List<Seat>,
+    selectedSeats: List<String>,
+    onSeatSelected: (Seat) -> Unit
+) {
+    val density = LocalDensity.current
+
+    // Animation for airplane diagram
+    val scale by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = tween(durationMillis = 1000),
+        label = "airplane_scale"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Airplane nose
+        Box(
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(160.dp)
+                    .height(80.dp)
+                    .clip(RoundedCornerShape(topStart = 80.dp, topEnd = 80.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                GoldColor.copy(alpha = 0.3f),
+                                DarkNavyBlue.copy(alpha = 0.6f)
+                            )
+                        )
+                    )
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                GoldColor.copy(alpha = 0.7f),
+                                GoldColor.copy(alpha = 0.1f)
+                            )
+                        ),
+                        shape = RoundedCornerShape(topStart = 80.dp, topEnd = 80.dp)
+                    ),
+            ) {
+                // Cockpit indicator
+                Text(
+                    text = "COCKPIT",
+                    color = GoldColor.copy(alpha = 0.8f),
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(top = 16.dp),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+
+        // Main cabin
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            GoldColor.copy(alpha = 0.7f),
+                            GoldColor.copy(alpha = 0.3f),
+                            GoldColor.copy(alpha = 0.7f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF001034).copy(alpha = 0.7f))
+                .padding(vertical = 16.dp, horizontal = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // First Class Section
+                Text(
+                    text = "FIRST CLASS",
+                    fontSize = 12.sp,
+                    color = GoldColor,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                // First Class seats (rows 1-2)
+                SeatRows(
+                    seats = seats.filter { it.id.startsWith("1") || it.id.startsWith("2") },
+                    selectedSeats = selectedSeats,
+                    onSeatSelected = onSeatSelected
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth(0.8f),
+                    color = GoldColor.copy(alpha = 0.3f)
+                )
+
+                // Business Class Section
+                Text(
+                    text = "BUSINESS CLASS",
+                    fontSize = 12.sp,
+                    color = GoldColor,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                // Business Class seats (rows 3-7)
+                SeatRows(
+                    seats = seats.filter {
+                        val row = it.id.substring(0, it.id.length - 1).toInt()
+                        row in 3..7
+                    },
+                    selectedSeats = selectedSeats,
+                    onSeatSelected = onSeatSelected
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth(0.8f),
+                    color = GoldColor.copy(alpha = 0.3f)
+                )
+
+                // Economy Class Section
+                Text(
+                    text = "ECONOMY CLASS",
+                    fontSize = 12.sp,
+                    color = GoldColor,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                // Economy Class seats (rows 8-30)
+                SeatRows(
+                    seats = seats.filter {
+                        val row = it.id.substring(0, it.id.length - 1).toInt()
+                        row > 7
+                    },
+                    selectedSeats = selectedSeats,
+                    onSeatSelected = onSeatSelected
+                )
+            }
+        }
+
+        // Airplane tail
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(60.dp)
+                    .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                DarkNavyBlue.copy(alpha = 0.6f),
+                                GoldColor.copy(alpha = 0.3f)
+                            )
+                        )
+                    )
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                GoldColor.copy(alpha = 0.1f),
+                                GoldColor.copy(alpha = 0.7f)
+                            )
+                        ),
+                        shape = RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp)
+                    ),
+            ) {
+                // Exit indicator
+                Text(
+                    text = "EXIT",
+                    color = GoldColor.copy(alpha = 0.8f),
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(bottom = 16.dp),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SeatRows(
+    seats: List<Seat>,
+    selectedSeats: List<String>,
+    onSeatSelected: (Seat) -> Unit
+) {
+    val groupedSeats = seats.groupBy { it.id.substring(0, it.id.length - 1) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        groupedSeats.forEach { (row, seatsInRow) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Row number
+                Text(
+                    text = row,
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.width(20.dp),
+                    textAlign = TextAlign.Center
+                )
+
+                // Left seats (A-C)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    seatsInRow
+                        .filter { it.id.endsWith("A") || it.id.endsWith("B") || it.id.endsWith("C") }
+                        .sortedBy { it.id.last() }
+                        .forEach { seat ->
+                            SeatItem(
+                                seat = seat,
+                                isSelected = selectedSeats.contains(seat.id),
+                                onSelect = { onSeatSelected(seat) }
+                            )
+                        }
+                }
+
+                // Aisle
+                Box(modifier = Modifier.width(24.dp))
+
+                // Right seats (D-F)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    seatsInRow
+                        .filter { it.id.endsWith("D") || it.id.endsWith("E") || it.id.endsWith("F") }
+                        .sortedBy { it.id.last() }
+                        .forEach { seat ->
+                            SeatItem(
+                                seat = seat,
+                                isSelected = selectedSeats.contains(seat.id),
+                                onSelect = { onSeatSelected(seat) }
+                            )
+                        }
+                }
+
+                // Row number (right side)
+                Text(
+                    text = row,
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.width(20.dp),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
@@ -737,272 +788,335 @@ fun SeatRowItem(
 
 @Composable
 fun SeatItem(
-    seat: SeatInfo,
-    seatType: SeatType,
-    onSeatSelected: () -> Unit
+    seat: Seat,
+    isSelected: Boolean,
+    onSelect: () -> Unit
 ) {
     val seatColor = when {
-        !seat.isAvailable -> Color(0xFFFF5722)
-        seat.isSelected -> Color(0xFF2196F3)
-        else -> when (seatType) {
-            SeatType.FIRST_CLASS -> Color(0xFFFFD700).copy(alpha = 0.8f)
-            SeatType.BUSINESS -> Color(0xFF03A9F4).copy(alpha = 0.8f)
-            SeatType.ECONOMY -> Color(0xFF4CAF50).copy(alpha = 0.8f)
-        }
+        isSelected -> GoldColor
+        seat.status == SeatStatus.OCCUPIED -> Color.Gray.copy(alpha = 0.5f)
+        seat.type == SeatStatus.FIRST_CLASS -> Color(0xFF9C27B0).copy(alpha = 0.7f) // Purple for first class
+        seat.type == SeatStatus.BUSINESS_CLASS -> Color(0xFF2196F3).copy(alpha = 0.7f) // Blue for business class
+        else -> Color(0xFF4CAF50).copy(alpha = 0.7f) // Green for economy
     }
 
-    // Animation for selected seats
-    val scale = if (seat.isSelected) 1.1f else 1f
-    val borderWidth = if (seat.isSelected) 1.dp else 0.dp
-
-    val infiniteTransition = rememberInfiniteTransition(label = "seat_animation")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.7f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "seat_pulse"
-    )
-
-    val alpha = if (seat.isSelected) pulseAlpha else 0.8f
+    val seatSize = when (seat.type) {
+        SeatStatus.FIRST_CLASS -> 28.dp // Larger seats for first class
+        SeatStatus.BUSINESS_CLASS -> 24.dp // Medium seats for business class
+        else -> 20.dp // Standard size for economy
+    }
 
     Box(
         modifier = Modifier
-            .size(
-                width = when (seatType) {
-                    SeatType.FIRST_CLASS -> 36.dp
-                    SeatType.BUSINESS -> 30.dp
-                    SeatType.ECONOMY -> 24.dp
-                },
-                height = when (seatType) {
-                    SeatType.FIRST_CLASS -> 36.dp
-                    SeatType.BUSINESS -> 30.dp
-                    SeatType.ECONOMY -> 24.dp
-                }
-            )
-            .scale(scale)
-            .clip(RoundedCornerShape(4.dp))
-            .background(
-                seatColor.copy(alpha = alpha),
-                RoundedCornerShape(4.dp)
-            )
+            .size(seatSize)
             .border(
-                width = borderWidth,
-                color = Color.White,
+                width = 1.dp,
+                color = if (isSelected) GoldColor else seatColor.copy(alpha = 0.8f),
                 shape = RoundedCornerShape(4.dp)
             )
-            .clickable(enabled = seat.isAvailable) {
-                onSeatSelected()
-            },
+            .background(
+                color = if (seat.status == SeatStatus.OCCUPIED)
+                    Color.DarkGray.copy(alpha = 0.3f)
+                else
+                    seatColor.copy(alpha = if (isSelected) 0.9f else 0.3f),
+                shape = RoundedCornerShape(4.dp)
+            ).clickable(
+                enabled = seat.status != SeatStatus.OCCUPIED,
+                onClick = onSelect
+            ),
         contentAlignment = Alignment.Center
     ) {
-        if (seat.isSelected) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = "Selected",
-                tint = Color.White,
-                modifier = Modifier.size(
-                    when (seatType) {
-                        SeatType.FIRST_CLASS -> 16.dp
-                        SeatType.BUSINESS -> 14.dp
-                        SeatType.ECONOMY -> 12.dp
-                    }
-                )
-            )
-        } else {
-            Text(
-                text = seat.column,
-                color = Color.White,
-                fontSize = when (seatType) {
-                    SeatType.FIRST_CLASS -> 12.sp
-                    SeatType.BUSINESS -> 10.sp
-                    SeatType.ECONOMY -> 8.sp
-                }
-            )
-        }
+        Text(
+            text = seat.id.last().toString(),
+            fontSize = if (seat.type == SeatStatus.FIRST_CLASS) 12.sp else 10.sp,
+            color = if (isSelected || seat.status == SeatStatus.AVAILABLE) Color.White else Color.Gray,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 @Composable
-fun CabinDivider() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Divider(
-                modifier = Modifier.weight(1f),
-                color = Color(0xFF64B5F6).copy(alpha = 0.3f)
-            )
-            Text(
-                text = "Cabin Divider",
-                color = Color(0xFF64B5F6),
-                fontSize = 10.sp,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            Divider(
-                modifier = Modifier.weight(1f),
-                color = Color(0xFF64B5F6).copy(alpha = 0.3f)
-            )
-        }
-    }
-}
-
-@Composable
-fun SelectedSeatsInfo(
-    selectedSeats: List<String>,
-    onContinueClick: () -> Unit
-) {
+fun SeatLegend() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF002650).copy(alpha = 0.7f)
+            containerColor = DarkNavyBlue.copy(alpha = 0.7f)
         ),
-        shape = RoundedCornerShape(16.dp)
+        border = CardDefaults.outlinedCardBorder().copy(
+            brush = Brush.linearGradient(listOf(GoldColor.copy(alpha = 0.5f), GoldColor.copy(alpha = 0.2f)))
+        ),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = if (selectedSeats.isEmpty()) "No seats selected" else "Selected Seats: ${selectedSeats.sorted().joinToString(", ")}",
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
+                text = "SEAT LEGEND",
+                color = GoldColor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Legend item for available seat
+                LegendItem(
+                    color = Color(0xFF4CAF50).copy(alpha = 0.7f),
+                    label = "Economy",
+                    price = "€120"
+                )
+
+                // Legend item for business class
+                LegendItem(
+                    color = Color(0xFF2196F3).copy(alpha = 0.7f),
+                    label = "Business",
+                    price = "€250"
+                )
+
+                // Legend item for first class
+                LegendItem(
+                    color = Color(0xFF9C27B0).copy(alpha = 0.7f),
+                    label = "First Class",
+                    price = "€450"
+                )
+
+                // Legend item for selected seat
+                LegendItem(
+                    color = GoldColor,
+                    label = "Selected",
+                    price = ""
+                )
+
+                // Legend item for occupied seat
+                LegendItem(
+                    color = Color.Gray.copy(alpha = 0.5f),
+                    label = "Occupied",
+                    price = ""
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LegendItem(
+    color: Color,
+    label: String,
+    price: String = ""
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        // Seat box
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(color = color.copy(alpha = 0.3f), shape = RoundedCornerShape(4.dp))
+                .border(1.dp, color.copy(alpha = 0.8f), RoundedCornerShape(4.dp))
+        )
+
+        // Label
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = Color.White,
+            textAlign = TextAlign.Center
+        )
+
+        // Price (if any)
+        if (price.isNotEmpty()) {
+            Text(
+                text = price,
+                fontSize = 10.sp,
+                color = GoldColor.copy(alpha = 0.8f),
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun SelectedSeatsCard(
+    selectedSeats: List<String>,
+    totalPrice: Long
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.8f)
+        ),
+        border = CardDefaults.outlinedCardBorder().copy(
+            brush = Brush.linearGradient(listOf(GoldColor.copy(alpha = 0.7f), GoldColor.copy(alpha = 0.3f)))
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painterResource(R.drawable.seat),
+                        contentDescription = "Selected seats",
+                        tint = GoldColor,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "SELECTED SEATS (${selectedSeats.size})",
+                        color = GoldColor,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Text(
+                    text = "€$totalPrice",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
+
+            // Display selected seats by category
+            val firstClassSeats = selectedSeats.filter {
+                val row = it.substring(0, it.length - 1).toInt()
+                row <= 2
+            }.sorted()
+
+            val businessClassSeats = selectedSeats.filter {
+                val row = it.substring(0, it.length - 1).toInt()
+                row in 3..7
+            }.sorted()
+
+            val economyClassSeats = selectedSeats.filter {
+                val row = it.substring(0, it.length - 1).toInt()
+                row > 7
+            }.sorted()
+
+            // First class seats section
+            if (firstClassSeats.isNotEmpty()) {
+                SeatCategorySection(
+                    title = "First Class",
+                    seats = firstClassSeats,
+                    pricePerSeat = 450
+                )
+            }
+
+            // Business class seats section
+            if (businessClassSeats.isNotEmpty()) {
+                SeatCategorySection(
+                    title = "Business Class",
+                    seats = businessClassSeats,
+                    pricePerSeat = 250
+                )
+            }
+
+            // Economy class seats section
+            if (economyClassSeats.isNotEmpty()) {
+                SeatCategorySection(
+                    title = "Economy Class",
+                    seats = economyClassSeats,
+                    pricePerSeat = 120
+                )
+            }
+
+            // Total amount row
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "TOTAL AMOUNT",
+                    color = GoldColor,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "€$totalPrice",
+                    color = GoldColor,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            // Note about price
+            Text(
+                text = "Prices include all taxes and fees",
+                fontSize = 12.sp,
+                color = Color.White.copy(alpha = 0.6f),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun SeatCategorySection(
+    title: String,
+    seats: List<String>,
+    pricePerSeat: Int
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = title,
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Seats
+            Text(
+                text = seats.joinToString(", "),
+                color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Enhanced Continue Button with animation and visual effects
-            val buttonEnabled = selectedSeats.isNotEmpty()
-
-            // Animation for button glow effect
-            val infiniteTransition = rememberInfiniteTransition(label = "button_animation")
-            val glowAlpha by infiniteTransition.animateFloat(
-                initialValue = 0.6f,
-                targetValue = 1.0f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(1500, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "button_glow"
+            // Price calculation
+            Text(
+                text = "${seats.size} × €$pricePerSeat = €${seats.size * pricePerSeat}",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 14.sp
             )
-
-            val buttonScale = if (buttonEnabled) 1f else 0.95f
-            val shadowElevation = if (buttonEnabled) 8.dp else 0.dp
-
-            // Price calculation based on selected seats
-            val totalPrice = selectedSeats.sumOf { seatId ->
-                when {
-                    seatId.startsWith("1") || seatId.startsWith("2") -> 450L // First class
-                    seatId.startsWith("3") || seatId.startsWith("4") ||
-                            seatId.startsWith("5") || seatId.startsWith("6") ||
-                            seatId.startsWith("7") -> 250 // Business class
-                    else -> 120 // Economy class
-                }
-            }
-
-            if (selectedSeats.isNotEmpty()) {
-                Text(
-                    text = "Total: $${totalPrice}",
-                    color = Color(0xFF4CAF50),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .scale(buttonScale),
-                contentAlignment = Alignment.Center
-            ) {
-                // Button glow effect
-                if (buttonEnabled) {
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        drawRoundRect(
-                            color = Color(0xFF2196F3).copy(alpha = glowAlpha * 0.3f),
-                            cornerRadius = CornerRadius(24.dp.toPx()),
-                            size = Size(size.width + 8.dp.toPx(), size.height + 8.dp.toPx()),
-                            topLeft = Offset(-4.dp.toPx(), -4.dp.toPx())
-                        )
-                    }
-                }
-
-                // Main button
-                Button(
-                    onClick = onContinueClick,
-                    enabled = buttonEnabled,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF0288D1),
-                        disabledContainerColor = Color.Gray.copy(alpha = 0.3f)
-                    ),
-                    shape = RoundedCornerShape(24.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Continue to Payment",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Animated arrow for enabled button
-                        if (buttonEnabled) {
-                            val arrowOffset by infiniteTransition.animateFloat(
-                                initialValue = 0f,
-                                targetValue = 4f,
-                                animationSpec = infiniteRepeatable(
-                                    animation = tween(800, easing = FastOutSlowInEasing),
-                                    repeatMode = RepeatMode.Reverse
-                                ),
-                                label = "arrow_animation"
-                            )
-
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Continue",
-                                tint = Color.White,
-                                modifier = Modifier.offset(x = arrowOffset.dp)
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Continue",
-                                tint = Color.White.copy(alpha = 0.5f)
-                            )
-                        }
-                    }
-                }
-            }
-
-            if (!buttonEnabled) {
-                Text(
-                    text = "Please select at least one seat to continue",
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
         }
     }
 }
@@ -1010,5 +1124,6 @@ fun SelectedSeatsInfo(
 @Preview(showBackground = true)
 @Composable
 fun AirplaneSeatsScreenPreview() {
-    AirplaneSeatsScreen(rememberNavController())
+    val navController = rememberNavController()
+    AirplaneSeatsScreen(navController = navController)
 }

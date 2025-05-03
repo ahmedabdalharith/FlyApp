@@ -1,189 +1,385 @@
 package com.example.flyapp.ui.theme.screens
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
-import com.example.flyapp.ui.theme.components.ParticleEffectBackground
 import com.example.flyapp.ui.theme.navigition.Screen
 import kotlinx.coroutines.delay
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
+
+
+data class Particle(
+    var position: Offset,
+    var velocity: Offset,
+    var radius: Float,
+    var alpha: Float,
+    var color: Color
+)
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-    // Animation states
-    var startAnimation by remember { mutableStateOf(false) }
-    var showTagline by remember { mutableStateOf(false) }
+    val animationState = remember {
+        SplashAnimationState(
+            logoScale = Animatable(0.3f),
+            logoAlpha = Animatable(0f),
+            textAlpha = Animatable(0f),
+            glowScale = Animatable(0f),
+            particleAnimatable = Animatable(0f)
+        )
+    }
 
-    // Scale animation for the logo
-    val scaleAnimation by animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0.3f,
-        animationSpec = tween(
-            durationMillis = 1000,
-            easing = FastOutSlowInEasing
-        ),
-        label = "scale"
-    )
 
-    // Alpha animation for the tagline
-    val alphaAnimation by animateFloatAsState(
-        targetValue = if (showTagline) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 800,
-            easing = FastOutSlowInEasing
-        ),
-        label = "alpha"
-    )
+    var showExplosion by remember { mutableStateOf(false) }
+    var particleAnimationProgress by remember { mutableFloatStateOf(0f) }
 
-    // Handle the navigation after splash screen delay
+
+    val particles = remember {
+        List(80) {
+            Particle(
+                position = Offset.Zero,
+                velocity = Offset.Zero,
+                radius = Random.nextFloat() * 5f + 2f,
+                alpha = 1f,
+                color = when {
+                    it % 3 == 0 -> GoldColor
+                    it % 3 == 1 -> Color.White
+                    else -> Color.White.copy(alpha = 0.7f)
+                }
+            )
+        }
+    }
+
+
+    LaunchedEffect(animationState.particleAnimatable.value) {
+        particleAnimationProgress = animationState.particleAnimatable.value
+    }
+
+
     LaunchedEffect(key1 = true) {
-        startAnimation = true
-        delay(1000)
-        showTagline = true
-        delay(2000)
-        // Navigate to the main screen after splash animation completes
-        // Replace "home_screen" with your actual home screen route
+
+        animationState.logoAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing)
+        )
+
+
+        animationState.logoScale.animateTo(
+            targetValue = 1.3f,
+            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+        )
+
+
+        showExplosion = true
+
+
+        animationState.logoScale.animateTo(
+            targetValue = 1.6f,
+            animationSpec = tween(durationMillis = 600, easing = LinearEasing)
+        )
+
+
+        animationState.logoScale.animateTo(
+            targetValue = 3.5f,
+            animationSpec = tween(durationMillis = 800, easing = FastOutLinearInEasing)
+        )
+
+
+        animationState.textAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 600, delayMillis = 300)
+        )
+
+
+        animationState.particleAnimatable.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing)
+        )
+
+
+        animationState.glowScale.animateTo(
+            targetValue = 1.1f,
+            animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing)
+        )
+
+
+//        animationState.logoScale.animateTo(
+//            targetValue = 150f, // تقليل لتحسين الأداء
+//            animationSpec = tween(durationMillis = 700, easing = FastOutLinearInEasing)
+//        )
+
+
+        delay(3000 - 2900)
         navController.navigate(Screen.WelcomeScreen.route) {
             popUpTo(Screen.SplashScreen.route) { inclusive = true }
         }
     }
 
+
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse_animation")
+    val pulse by infiniteTransition.animateFloat(
+        initialValue = 0.98f,
+        targetValue = 1.02f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse_effect"
+    )
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
+                brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF001034),
-                        Color(0xFF003045),
-                        Color(0xFF004D40)
+                        DeepBlue,
+                        MediumBlue,
+                        DarkNavyBlue
                     )
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
-        // Reuse the particle effect from the app
-        ParticleEffectBackground()
 
-        // Centered content with logo and app name
+        SecurityPatternBackground()
+
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Logo with pulsing effect
-            LogoWithPulseEffect(scaleAnimation)
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // App Name
-            Text(
-                text = "FlyApp",
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
+            // شعار متحرك مع تأثير توهج
+            LogoWithEffects(
+                logoScale = animationState.logoScale.value,
+                logoAlpha = animationState.logoAlpha.value,
+                glowScale = animationState.glowScale.value,
+                pulse = pulse,
+                showExplosion = showExplosion,
+                particles = particles,
+                particleAnimationProgress = particleAnimationProgress
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Tagline with fade-in effect
-            Text(
-                text = "Your journey begins here",
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 16.sp,
-                modifier = Modifier.alpha(alphaAnimation)
+            // اسم التطبيق مع تحريك
+            AppNameWithTagline(textAlpha = animationState.textAlpha.value)
+        }
+    }
+}
+
+@Composable
+private fun SecurityPatternBackground() {
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+
+        // رسم خطوط نمط الأمان
+        val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+
+        // خطوط متقاطعة
+        drawLine(
+            color = Color.White.copy(alpha = 0.05f),
+            start = Offset(0f, 0f),
+            end = Offset(canvasWidth, canvasHeight),
+            strokeWidth = 1f,
+            pathEffect = pathEffect
+        )
+
+        drawLine(
+            color = Color.White.copy(alpha = 0.05f),
+            start = Offset(canvasWidth, 0f),
+            end = Offset(0f, canvasHeight),
+            strokeWidth = 1f,
+            pathEffect = pathEffect
+        )
+
+        // رسم علامة مائية دائرية
+        val stroke = Stroke(width = 1f, pathEffect = pathEffect)
+        for (i in 1..4) {
+            drawCircle(
+                color = Color.White.copy(alpha = 0.03f),
+                radius = canvasHeight / 3f * i / 4f,
+                center = Offset(canvasWidth / 2f, canvasHeight / 2f),
+                style = stroke
             )
         }
 
-        // Version text at the bottom
-        Text(
-            text = "Version 1.0.0",
-            color = Color.White.copy(alpha = 0.5f),
-            fontSize = 12.sp,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 24.dp)
+        // دوائر خلفية إضافية خفيفة
+        drawCircle(
+            color = Color.White.copy(alpha = 0.02f),
+            radius = canvasHeight / 2f,
+            center = Offset(canvasWidth / 2f, canvasHeight / 2f)
         )
     }
 }
 
 @Composable
-fun LogoWithPulseEffect(scale: Float) {
-    // Animation for the outer glow
-    val infiniteTransition = rememberInfiniteTransition(label = "logo_pulse")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse_alpha"
-    )
-
+private fun LogoWithEffects(
+    logoScale: Float,
+    logoAlpha: Float,
+    glowScale: Float,
+    pulse: Float,
+    showExplosion: Boolean,
+    particles: List<Particle>,
+    particleAnimationProgress: Float
+) {
     Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.scale(scale)
+        modifier = Modifier.size(180.dp),
+        contentAlignment = Alignment.Center
     ) {
-        // Outer pulse glow
-        Canvas(modifier = Modifier.size(140.dp)) {
-            drawCircle(
-                color = Color(0xFF64B5F6).copy(alpha = pulseAlpha),
-                radius = size.minDimension / 2
-            )
-        }
-
-        // Inner circle with logo
+        // خلفية توهج
         Box(
             modifier = Modifier
-                .size(260.dp)
-                .background(Color(0xFF0D47A1).copy(alpha = 0.8f), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            // Replace R.drawable.app_logo with your actual app logo resource
-            Image(
-                painter = painterResource(R.drawable.logo2),
-                contentDescription = "App Logo",
-                modifier = Modifier.size(200.dp)
+                .size(160.dp)
+                .scale(glowScale)
+                .alpha(logoAlpha * 0.7f)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            GoldColor.copy(alpha = 0.7f),
+                            GoldColor.copy(alpha = 0.0f)
+                        )
+                    )
+                )
+        )
+
+        // الشعار
+        Image(
+            painter = painterResource(id = R.drawable.front_plane),
+            contentDescription = "FlyApp Logo",
+            modifier = Modifier
+                .size(100.dp)
+                .scale(logoScale * pulse)
+                .alpha(logoAlpha)
+        )
+
+        // تأثير جزيئات الانفجار
+        if (showExplosion) {
+            ExplosionParticles(
+                particles = particles,
+                particleAnimationProgress = particleAnimationProgress
             )
         }
     }
 }
+
+@Composable
+private fun ExplosionParticles(
+    particles: List<Particle>,
+    particleAnimationProgress: Float
+) {
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val center = Offset(size.width / 2, size.height / 2)
+
+        // رسم جزيئات الانفجار
+        particles.forEachIndexed { index, particle ->
+            // تعيين الموضع الأولي إذا لم يتم تعيينه
+            if (particle.position == Offset.Zero) {
+                // حساب زوايا عشوائية للتشتت
+                val angle = Random.nextDouble(0.0, 2 * Math.PI).toFloat()
+                val speed = Random.nextFloat() * 6f + 2f
+
+                particle.position = center
+                particle.velocity = Offset(
+                    cos(angle) * speed,
+                    sin(angle) * speed
+                )
+            }
+
+            // حساب موضع الجزيء بناءً على تقدم التحريك
+            val currentPosition = Offset(
+                particle.position.x + particle.velocity.x * particleAnimationProgress * size.width * 0.12f,
+                particle.position.y + particle.velocity.y * particleAnimationProgress * size.height * 0.12f
+            )
+
+            // حساب الشفافية بناءً على تقدم التحريك (تلاشي مع مرور الوقت)
+            val currentAlpha = particle.alpha * (1f - particleAnimationProgress * 0.8f)
+
+            // رسم الجزيء
+            drawCircle(
+                color = particle.color.copy(alpha = currentAlpha),
+                radius = particle.radius * (1f - particleAnimationProgress * 0.4f),
+                center = currentPosition
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppNameWithTagline(textAlpha: Float) {
+    // اسم التطبيق مع تحريك
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.alpha(textAlpha)
+    ) {
+        Text(
+            text = "FLY",
+            color = Color.White,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = "APP",
+            color = GoldColor,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    // شعار التطبيق
+    Text(
+        text = "Explore the world with ease",
+        color = Color.White.copy(alpha = 0.8f),
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Normal,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.alpha(textAlpha)
+    )
+}
+
+// فئة حالة التحريك لتنظيم أفضل
+private class SplashAnimationState(
+    val logoScale: Animatable<Float, AnimationVector1D>,
+    val logoAlpha: Animatable<Float, AnimationVector1D>,
+    val textAlpha: Animatable<Float, AnimationVector1D>,
+    val glowScale: Animatable<Float, AnimationVector1D>,
+    val particleAnimatable: Animatable<Float, AnimationVector1D>
+)
 
 @Preview(showBackground = true)
 @Composable

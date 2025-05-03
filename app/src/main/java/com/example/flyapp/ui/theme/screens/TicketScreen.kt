@@ -1,16 +1,16 @@
 package com.example.flyapp.ui.theme.screens
 
-import android.app.Activity
-import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,1083 +25,1094 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
-import com.example.flyapp.ui.theme.components.ParticleEffectBackground
+import com.example.flyapp.ui.theme.components.DottedLine
+import com.example.flyapp.ui.theme.components.FlightTopAppBar
 import com.example.flyapp.ui.theme.navigition.Screen
-import com.example.flyapp.ui.theme.utils.PdfUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 @Composable
 fun TicketScreen(
     navController: NavHostController,
-    selectedSeats: List<String> = listOf("15A", "15B"), // Default value for preview
-    bookingReference: String = "SV" + (100000..999999).random()
+    // Default values for preview
+    flightNumber: String = "FA 2240",
+    departureCity: String = "NEW YORK",
+    destinationCity: String = "LONDON",
+    departureAirport: String = "JFK",
+    destinationAirport: String = "LHR",
+    departureDate: String = "MAY 15, 2025",
+    departureTime: String = "10:30",
+    arrivalTime: String = "22:15",
+    gate: String = "A22",
+    terminal: String = "2",
+    boardingTime: String = "09:45",
+    selectedSeats: List<String> = listOf("15A", "15B")
 ) {
-    // Get current date for ticket
-    val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.US)
-    val currentDate = dateFormat.format(Date())
+    // Animation states
+    var isTicketVisible by remember { mutableStateOf(false) }
+    var isBottomVisible by remember { mutableStateOf(false) }
 
-    // Context for PDF generation
-    val context = LocalContext.current
-
-    // Calculate price based on selected seats (same logic as in PaymentScreen)
-    val totalPrice = selectedSeats.sumOf { seatId ->
-        when {
-            seatId.startsWith("1") || seatId.startsWith("2") -> 450L // First class
-            seatId.startsWith("3") || seatId.startsWith("4") ||
-                    seatId.startsWith("5") || seatId.startsWith("6") ||
-                    seatId.startsWith("7") -> 250L // Business class
-            else -> 120L // Economy class
-        }
-    }
-
-    // Scroll state
+    // The scroll state to enable scrolling
     val scrollState = rememberScrollState()
+
+    // Calculate flight duration (for display purposes)
+    val durationHours = 7  // For example JFK to LHR is about 7 hours
+    val durationMinutes = 45
+
+    // The current date for ticket generation
+    val currentDate = remember { SimpleDateFormat("dd MMM yyyy", Locale.US).format(Date()) }
+
+    // Launch animations sequentially
+    LaunchedEffect(Unit) {
+        delay(300)
+        isTicketVisible = true
+        delay(800)
+        isBottomVisible = true
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
+                brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF001034),
-                        Color(0xFF003045),
-                        Color(0xFF004D40)
+                        DeepBlue,     // Dark blue
+                        MediumBlue,   // Medium blue
+                        DarkNavyBlue  // Navy blue
                     )
                 )
             )
     ) {
-        // Background particles
-        ParticleEffectBackground()
+        // Security pattern background (matching payment screen)
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
+
+            // Draw security pattern lines (like passport security pattern)
+            val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(0f, 0f),
+                end = Offset(canvasWidth, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(canvasWidth, 0f),
+                end = Offset(0f, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            // Draw circular watermark
+            val stroke = Stroke(width = 1f, pathEffect = pathEffect)
+            for (i in 1..5) {
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.03f),
+                    radius = canvasHeight / 3f * i / 5f,
+                    center = Offset(canvasWidth / 2f, canvasHeight / 2f),
+                    style = stroke
+                )
+            }
+        }
 
         // Main content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(scrollState)
         ) {
-            // Header
-            TicketHeader()
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // E-Ticket Card
-            ETicketCard(
-                selectedSeats = selectedSeats,
-                bookingReference = bookingReference,
-                date = currentDate
+            FlightTopAppBar(
+                textOne = "BOARDING ",
+                textTwo = "PASS",
+                navController= navController,
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // Main content area
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Success message
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(animationSpec = tween(1000)) +
+                            slideInVertically(
+                                animationSpec = tween(1000, easing = FastOutSlowInEasing),
+                                initialOffsetY = { -40 }
+                            )
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Your tickets are ready!",
+                            color = GoldColor,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                        )
 
-            // Boarding Pass Card
-            BoardingPassCard(
-                selectedSeats = selectedSeats,
-                bookingReference = bookingReference,
-                date = currentDate
-            )
+                        Spacer(modifier = Modifier.height(4.dp))
 
-            Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "Flight information and boarding passes",
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
 
-            // Actions
-            ActionButtons(
-                onShare = { /* Share functionality would go here */ },
-                onDownload = {
-                    // We need to cast context to Activity for proper lifecycle handling
-                    val activity = context as? Activity
-                    if (activity != null) {
-                        // Show loading message
-                        Toast.makeText(context, "Generating PDF...", Toast.LENGTH_SHORT).show()
+                Spacer(modifier = Modifier.height(24.dp))
 
-                        // Generate PDF in a coroutine to avoid blocking UI
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val pdfUri = PdfUtils.generateTicketPdf(
-                                activity = activity,
-                                bookingReference = bookingReference
+                // Boarding Pass Ticket
+                AnimatedVisibility(
+                    visible = isTicketVisible,
+                    enter = fadeIn(animationSpec = tween(800)) +
+                            expandVertically(
+                                animationSpec = tween(800, easing = FastOutSlowInEasing),
+                                expandFrom = Alignment.Top
+                            )
+                ) {
+                    BoardingPassCard(
+                        flightNumber = flightNumber,
+                        departureCity = departureCity,
+                        destinationCity = destinationCity,
+                        departureAirport = departureAirport,
+                        destinationAirport = destinationAirport,
+                        departureDate = departureDate,
+                        departureTime = departureTime,
+                        arrivalTime = arrivalTime,
+                        gate = gate,
+                        terminal = terminal,
+                        boardingTime = boardingTime,
+                        selectedSeats = selectedSeats,
+                        durationHours = durationHours,
+                        durationMinutes = durationMinutes,
+                        currentDate = currentDate
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Action buttons
+                AnimatedVisibility(
+                    visible = isBottomVisible,
+                    enter = fadeIn(animationSpec = tween(800, delayMillis = 500))
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Share & Email buttons
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            // Share button
+                            Button(
+                                onClick = { /* Share functionality */ },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GoldColor.copy(alpha = 0.2f),
+                                    contentColor = GoldColor
+                                ),
+                                shape = RoundedCornerShape(8.dp)
                             ) {
-                                // Content to be rendered in PDF
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(Color.White)
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(16.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        // Add app logo/branding for the PDF
-                                        Image(
-                                            painter = painterResource(R.drawable.plane_ticket),
-                                            contentDescription = "FlyApp Logo",
-                                            modifier = Modifier.size(64.dp)
-                                        )
-
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-                                        Text(
-                                            text = "FLIGHT TICKET",
-                                            color = Color(0xFF003366),
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-
-                                        Spacer(modifier = Modifier.height(8.dp))
-
-                                        Text(
-                                            text = "Booking Reference: $bookingReference",
-                                            color = Color(0xFF0055A5),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-
-                                        Spacer(modifier = Modifier.height(24.dp))
-
-                                        // Include both ticket cards in the PDF
-                                        ETicketCard(
-                                            selectedSeats = selectedSeats,
-                                            bookingReference = bookingReference,
-                                            date = currentDate
-                                        )
-
-                                        Spacer(modifier = Modifier.height(24.dp))
-
-                                        BoardingPassCard(
-                                            selectedSeats = selectedSeats,
-                                            bookingReference = bookingReference,
-                                            date = currentDate
-                                        )
-
-                                        Spacer(modifier = Modifier.height(24.dp))
-
-                                        // Add footer with legal information
-                                        Text(
-                                            text = "This is an electronic ticket. Please present a printed copy or show this PDF at the check-in counter.",
-                                            color = Color(0xFF666666),
-                                            fontSize = 12.sp,
-                                            textAlign = TextAlign.Center
-                                        )
-
-                                        Spacer(modifier = Modifier.height(8.dp))
-
-                                        Text(
-                                            text = "© ${Calendar.getInstance().get(Calendar.YEAR)} FlyApp - All Rights Reserved",
-                                            color = Color(0xFF666666),
-                                            fontSize = 10.sp,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-                                }
+                                Icon(
+                                    imageVector = Icons.Default.Share,
+                                    contentDescription = "Share"
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "SHARE",
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
 
-                            // Switch to main thread to open the PDF
-                            withContext(Dispatchers.Main) {
-                                pdfUri?.let { uri ->
-                                    PdfUtils.openPdf(context, uri)
-                                } ?: run {
-                                    Toast.makeText(context, "Failed to create PDF", Toast.LENGTH_SHORT).show()
-                                }
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            // Email button
+                            Button(
+                                onClick = { /* Email functionality */ },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GoldColor.copy(alpha = 0.2f),
+                                    contentColor = GoldColor
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Email,
+                                    contentDescription = "Email"
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "EMAIL",
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         }
-                    } else {
-                        Toast.makeText(context, "Cannot access Activity to create PDF", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                onHome = {
-                    navController.navigate(Screen.MainScreen.route) {
-                        popUpTo(Screen.MainScreen.route) { inclusive = true }
-                    }
-                }
-            )
 
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
-}
-@Composable
-fun TicketHeader() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Animated plane icon
-        val infiniteTransition = rememberInfiniteTransition(label = "plane_animation")
-        val offsetY by infiniteTransition.animateFloat(
-            initialValue = -3f,
-            targetValue = 3f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1000, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "plane_float"
-        )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-        Box(
-            modifier = Modifier
-                .size(60.dp)
-                .offset(y = offsetY.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            // Glow behind plane
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                drawCircle(
-                    color = Color(0xFF64B5F6).copy(alpha = 0.4f),
-                    radius = size.minDimension / 2,
-                    center = center
-                )
-            }
+                        // Return to home button
+                        Button(
+                            onClick = {
+                                navController.navigate(Screen.HomeScreen.route) {
+                                    popUpTo(0) // Clear back stack
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = GoldColor,
+                                contentColor = DarkNavyBlue
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.airplane_up),
+                                contentDescription = "Home",
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "BOOK ANOTHER FLIGHT",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                        }
 
-            // Plane icon
-            Image(
-                painter = painterResource(R.drawable.plane_ticket),
-                contentDescription = "Flight",
-                modifier = Modifier.size(36.dp)
-            )
-        }
+                        Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Your Ticket",
-            color = Color.White,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Booking Confirmed",
-            color = Color(0xFF4CAF50),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-fun ETicketCard(
-    selectedSeats: List<String>,
-    bookingReference: String,
-    date: String
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0A192F).copy(alpha = 0.85f)
-        ),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "E-Ticket",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFF64B5F6).copy(alpha = 0.2f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.plane_ticket),
-                        contentDescription = "Flight Logo",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Flight details
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Riyadh",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "RUH",
-                        color = Color(0xFF64B5F6),
-                        fontSize = 16.sp
-                    )
-                    Text(
-                        text = "10:30 AM",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 14.sp
-                    )
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Flight direction",
-                        tint = Color(0xFF64B5F6),
-                        modifier = Modifier.size(24.dp)
-                    )
-
-                    Text(
-                        text = "2h 15m",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp
-                    )
-
-                    Text(
-                        text = "SV 1734",
-                        color = Color(0xFF64B5F6),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = "Dubai",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "DXB",
-                        color = Color(0xFF64B5F6),
-                        fontSize = 16.sp
-                    )
-                    Text(
-                        text = "12:45 PM",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 14.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color(0xFF64B5F6).copy(alpha = 0.3f))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Passenger & Seat Details
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Passenger",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Passenger",
-                            tint = Color(0xFF64B5F6),
-                            modifier = Modifier.size(16.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(4.dp))
-
+                        // Check-in reminder text
                         Text(
-                            text = "Ahmed Ibrahim",
-                            color = Color.White,
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(color = Color.White.copy(alpha = 0.7f))) {
+                                    append("Check-in online ")
+                                }
+                                withStyle(style = SpanStyle(
+                                    color = GoldColor,
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Medium
+                                )) {
+                                    append("24 hours")
+                                }
+                                withStyle(style = SpanStyle(color = Color.White.copy(alpha = 0.7f))) {
+                                    append(" before departure")
+                                }
+                            },
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "Seat",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = selectedSeats.sorted().joinToString(", "),
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Date & Booking Reference
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Date",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.date_range),
-                            contentDescription = "Date",
-                            tint = Color(0xFF64B5F6),
-                            modifier = Modifier.size(16.dp)
+                            textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
+                        // Airport arrival tip
                         Text(
-                            text = date,
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "Arrive at the airport at least 2 hours before departure",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center
                         )
+
+                        Spacer(modifier = Modifier.height(32.dp))
                     }
                 }
-
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "Booking Ref",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = bookingReference,
-                        color = Color(0xFF4CAF50),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Price Details
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Total Paid",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 14.sp
-                )
-
-                Text(
-                    text = "$${800}",
-                    color = Color(0xFF4CAF50),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
             }
         }
     }
 }
 
-
-
-@Composable
-fun ActionButtons(
-    onShare: () -> Unit,
-    onDownload: () -> Unit,
-    onHome: () -> Unit
-) {
-    // Share button
-    Button(
-        onClick = onShare,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF64B5F6)
-        ),
-        shape = RoundedCornerShape(24.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
-        Icon(
-            Icons.Default.Share,
-            contentDescription = "Share",
-            tint = Color.White,
-            modifier = Modifier.size(20.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(
-            text = "Share Ticket",
-            color = Color.White,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    // Download button
-    Button(
-        onClick = onDownload,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF0A192F)
-        ),
-        shape = RoundedCornerShape(24.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.download), // Replace with download icon
-            contentDescription = "Download",
-            tint = Color.White,
-            modifier = Modifier.size(20.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(
-            text = "Download PDF",
-            color = Color.White,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Return to Home button
-    Text(
-        text = "Return to Home",
-        color = Color(0xFF64B5F6),
-        fontSize = 16.sp,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .clickable(onClick = onHome)
-            .padding(8.dp)
-            .fillMaxWidth()
-    )
-}
-
-@Preview
-@Composable
-fun TicketScreenPreview() {
-    TicketScreen(
-        navController = rememberNavController(),
-        selectedSeats = listOf("15A", "15B"),
-        bookingReference = "SV423975"
-    )
-}
 @Composable
 fun BoardingPassCard(
+    flightNumber: String,
+    departureCity: String,
+    destinationCity: String,
+    departureAirport: String,
+    destinationAirport: String,
+    departureDate: String,
+    departureTime: String,
+    arrivalTime: String,
+    gate: String,
+    terminal: String,
+    boardingTime: String,
     selectedSeats: List<String>,
-    bookingReference: String,
-    date: String
+    durationHours: Int,
+    durationMinutes: Int,
+    currentDate: String
+) {
+    // Card states
+    var isFlipped by remember { mutableStateOf(false) }
+
+    // Animation values for card flip
+    val rotation by animateFloatAsState(
+        targetValue = if (isFlipped) 180f else 0f,
+        animationSpec = tween(500, easing = FastOutSlowInEasing),
+        label = "card_flip"
+    )
+
+    // The flip animation
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { isFlipped = !isFlipped }
+            .graphicsLayer {
+                rotationY = rotation
+                cameraDistance = 12f * density
+            }
+    ) {
+        // Front of the boarding pass
+        Image(
+            painter = painterResource(id = R.drawable.earth_night),
+            contentDescription = "Plane Ticket",
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.Transparent)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    // Hide back when card is flipped
+                    alpha = if (rotation < 90f) 1f else 0f
+                }
+        ) {
+            BoardingPassFront(
+                flightNumber = flightNumber,
+                departureCity = departureCity,
+                destinationCity = destinationCity,
+                departureAirport = departureAirport,
+                destinationAirport = destinationAirport,
+                departureDate = departureDate,
+                departureTime = departureTime,
+                arrivalTime = arrivalTime,
+                gate = gate,
+                terminal = terminal,
+                boardingTime = boardingTime,
+                selectedSeats = selectedSeats,
+                durationHours = durationHours,
+                durationMinutes = durationMinutes
+            )
+        }
+
+        // Back of the boarding pass (QR Code and additional info)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    // Hide front when card is not flipped
+                    rotationY = 180f
+                    alpha = if (rotation >= 90f) 1f else 0f
+                }
+        ) {
+            BoardingPassBack(
+                flightNumber = flightNumber,
+                departureCity = departureCity,
+                destinationCity = destinationCity,
+                departureDate = departureDate,
+                departureTime = departureTime,
+                currentDate = currentDate,
+                selectedSeats = selectedSeats
+            )
+        }
+    }
+}
+
+@Composable
+fun BoardingPassFront(
+    flightNumber: String,
+    departureCity: String,
+    destinationCity: String,
+    departureAirport: String,
+    destinationAirport: String,
+    departureDate: String,
+    departureTime: String,
+    arrivalTime: String,
+    gate: String,
+    terminal: String,
+    boardingTime: String,
+    selectedSeats: List<String>,
+    durationHours: Int,
+    durationMinutes: Int
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+         ,
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
         ),
-        shape = RoundedCornerShape(16.dp)
     ) {
         Column(
-            modifier = Modifier.padding(0.dp)
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            // Airline Header
-            Box(
+            // Top airline bar
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        Brush.horizontalGradient(
+                        brush = Brush.horizontalGradient(
                             colors = listOf(
-                                Color(0xFF003366),
-                                Color(0xFF0055A5)
+                                GoldColor.copy(alpha = 0.7f),
+                                GoldColor,
+                                GoldColor.copy(alpha = 0.7f)
                             )
                         )
                     )
-                    .padding(16.dp)
+                    .padding(vertical = 10.dp, horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Airline Logo
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(Color.White, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            // Replace with airline logo
-                            Canvas(modifier = Modifier.size(32.dp)) {
-                                drawCircle(
-                                    color = Color(0xFF0055A5),
-                                    radius = size.minDimension / 3,
-                                    center = center
-                                )
-                                drawPath(
-                                    path = Path().apply {
-                                        moveTo(center.x - 15f, center.y)
-                                        lineTo(center.x + 15f, center.y)
-                                        moveTo(center.x, center.y - 15f)
-                                        lineTo(center.x, center.y + 15f)
-                                    },
-                                    color = Color.White,
-                                    style = Stroke(width = 3f)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Column {
-                            Text(
-                                text = "SAUDIA",
-                                color = Color.White,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                            Text(
-                                text = "Saudi Arabian Airlines",
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal
-                            )
-                        }
-                    }
-
+                // Airline logo and name
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painterResource(R.drawable.plane_ticket),
+                        contentDescription = "Airline Logo",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "BOARDING PASS",
-                        color = Color.White,
+                        text = "FLY AIRLINES",
+                        color = DarkNavyBlue,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        letterSpacing = 1.sp
                     )
                 }
+
+                // Flight number
+                Text(
+                    text = flightNumber,
+                    color = DarkNavyBlue,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
             }
 
-            // Flight Information Section
+            // Main boarding pass content
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(top = 16.dp, bottom = 16.dp)
             ) {
-                // From - To with Airline details
+                // Flight route header
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
+                    ,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    Column {
+                    // Departure city
+                    Column(horizontalAlignment = Alignment.Start) {
                         Text(
-                            text = "RUH",
-                            color = Color(0xFF003366),
+                            text = departureCity,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 22.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            letterSpacing = 1.sp
                         )
                         Text(
-                            text = "Riyadh",
-                            color = Color(0xFF444444),
+                            text = departureAirport,
+                            color = GoldColor,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 14.sp
                         )
                     }
 
+                    // Flight path icon
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        // Flight icon with route line
-                        Box(modifier = Modifier.width(120.dp)) {
-                            Canvas(modifier = Modifier
-                                .height(28.dp)
-                                .fillMaxWidth()) {
-                                // Draw the dashed line
-                                val pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 4f), 0f)
-                                drawLine(
-                                    color = Color(0xFF0055A5),
-                                    start = androidx.compose.ui.geometry.Offset(0f, size.height/2),
-                                    end = androidx.compose.ui.geometry.Offset(size.width, size.height/2),
-                                    strokeWidth = 1.5f,
-                                    pathEffect = pathEffect
-                                )
-
-                                // Draw the plane icon
-                                drawCircle(
-                                    color = Color(0xFF0055A5),
-                                    radius = 16f,
-                                    center = androidx.compose.ui.geometry.Offset(size.width * 0.7f, size.height/2)
-                                )
-                            }
-                        }
-
-                        Text(
-                            text = "SV 1734",
-                            color = Color(0xFF0055A5),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                        Icon(
+                            painter = painterResource(id = R.drawable.plane_path),
+                            contentDescription = "Flight Path",
+                            tint = GoldColor,
+                            modifier = Modifier
+                                .size(28.dp)
                         )
 
                         Text(
-                            text = "Boeing 787-9",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
+                            text = "${durationHours}h ${durationMinutes}m",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 2.dp)
                         )
                     }
 
+                    // Destination city
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "DXB",
-                            color = Color(0xFF003366),
+                            text = destinationCity,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 22.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            letterSpacing = 1.sp
                         )
                         Text(
-                            text = "Dubai",
-                            color = Color(0xFF444444),
+                            text = destinationAirport,
+                            color = GoldColor,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 14.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Flight date row
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Date",
+                        tint = GoldColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = departureDate,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Flight times
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Departure time
+                    Column {
+                        Text(
+                            text = "DEPARTURE",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = departureTime,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
+
+                    // Arrival time
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "ARRIVAL",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = arrivalTime,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Divider with scissor effect
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .offset(
+                            y = (-8).dp // Adjust the offset to create a scissor effect
+                        )
+
+                ) {
+                   DottedLine(
+                          lineHeight = 2.dp,
+                          notchRadius = 16.dp,
+                          backgroundColor = MediumBlue,
+                       overflowBy = (40).dp,
+                   )
+//
+//                    // Left scissors icon
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.scissors),
+//                        contentDescription = "Cut Here",
+//                        modifier = Modifier
+//                            .size(24.dp)
+//                            .align(Alignment.CenterStart)
+//                            .alpha(0.7f),
+//                        tint = GoldColor
+//                    )
+//
+//                    // Right scissors icon
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.scissors),
+//                        contentDescription = "Cut Here",
+//                        modifier = Modifier
+//                            .size(24.dp)
+//                            .align(Alignment.CenterEnd)
+//                            .alpha(0.7f)
+//                            .rotate(180f),
+//                        tint = GoldColor
+//                    )
+                }
+
+                // Passenger and seat information
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth().padding(start = 16.dp, end = 16.dp)
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Passenger count
+                    Column(
+                    ) {
+                        Text(
+                            text = "PASSENGER",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = "${selectedSeats.size} Adult${if (selectedSeats.size > 1) "s" else ""}",
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    // Seat information
+                    Column( modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                            horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "SEAT${if (selectedSeats.size > 1) "S" else ""}",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = selectedSeats.joinToString(", "),
+                            color = GoldColor,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Gate, Terminal and Boarding Time
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Gate
+                    Column {
+                        Text(
+                            text = "GATE",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = gate,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    // Terminal
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "TERMINAL",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = terminal,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    // Boarding time
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "BOARDING",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = boardingTime,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Date and Time Information
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(
-                            text = "DATE",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = date,
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "TIME",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = "10:30",
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = "FLIGHT DURATION",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = "2h 15m",
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                // Barcode section
+                BarcodeCode128(
+                    data = "PRODUCT12345",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp)
+                        .height(120.dp)
+                        .padding(vertical = 8.dp)
+                )
+                // Bottom text - Tap to flip
+                Text(
+                    text = "TAP CARD TO VIEW QR CODE",
+                    color = GoldColor.copy(alpha = 0.7f),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
             }
+        }
+    }
+}
 
-            // Perforation line
-            Canvas(
+@Composable
+fun BoardingPassBack(
+    flightNumber: String,
+    departureCity: String,
+    destinationCity: String,
+    departureDate: String,
+    departureTime: String,
+    currentDate: String,
+    selectedSeats: List<String>
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f),
+                        GoldColor.copy(alpha = 0.7f)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Top header
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(20.dp)
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                val pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f), 0f)
-                val y = size.height / 2
-
-                // Draw zigzag pattern
-                val path = Path().apply {
-                    moveTo(0f, y)
-                    var x = 0f
-                    val zigzagWidth = 16f
-                    val zigzagHeight = 8f
-
-                    while (x < size.width) {
-                        lineTo(x + zigzagWidth/2, y - zigzagHeight/2)
-                        lineTo(x + zigzagWidth, y)
-                        x += zigzagWidth
-                    }
-                }
-
-                drawPath(
-                    path = path,
-                    color = Color(0xFF0055A5).copy(alpha = 0.5f),
-                    style = Stroke(width = 1f)
+                Icon(
+                    painterResource(R.drawable.plane_ticket),
+                    contentDescription = "Ticket",
+                    tint = GoldColor,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "FLY AIRLINES",
+                    color = GoldColor,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    letterSpacing = 1.sp
                 )
             }
 
-            // Passenger and Ticket Information
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "PASSENGER NAME",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = "DOE/JOHN MR",
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "SEAT",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = selectedSeats.first(),
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "BOARDING",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = "09:45",
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "GATE",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = "B26",
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "ZONE",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = "ZONE 2",
-                            color = Color(0xFF000000),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Booking reference
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(
-                            text = "BOOKING REFERENCE",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = bookingReference,
-                            color = Color(0xFF003366),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Column {
-                        Text(
-                            text = "E-TICKET NUMBER",
-                            color = Color(0xFF666666),
-                            fontSize = 10.sp
-                        )
-                        Text(
-                            text = "065-${(1000000..9999999).random()}",
-                            color = Color(0xFF003366),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-
-            // Barcode Section
+            // QR Code
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF5F5F5))
+                    .size(180.dp)
+                    .background(Color.White, RoundedCornerShape(8.dp))
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // More realistic QR code/barcode
-                    Canvas(modifier = Modifier
-                        .width(200.dp)
-                        .height(60.dp)) {
-                        // Draw barcode background
-                        drawRect(
-                            color = Color.White,
-                            size = size
-                        )
-
-                        // Draw barcode lines
-                        val lineWidth = 3f
-                        val spacing = 2f
-                        var xOffset = 0f
-
-                        // Create a random but consistent pattern for the barcode
-                        val random = java.util.Random(bookingReference.hashCode().toLong())
-                        while (xOffset < size.width) {
-                            val lineHeight = if (random.nextBoolean()) size.height else size.height * 0.7f
-                            val yOffset = if (lineHeight < size.height) (size.height - lineHeight) / 2 else 0f
-
-                            drawRect(
-                                color = Color.Black,
-                                topLeft = androidx.compose.ui.geometry.Offset(xOffset, yOffset),
-                                size = androidx.compose.ui.geometry.Size(lineWidth, lineHeight)
-                            )
-
-                            xOffset += lineWidth + spacing
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "SV1734${(1000..9999).random()}${bookingReference}",
-                        color = Color(0xFF666666),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.qrcode),
+                    contentDescription = "QR Code",
+                    modifier = Modifier.fillMaxSize()
+                )
             }
 
-            // Bottom disclaimer
-            Text(
-                text = "BOARDING GATE CLOSES 20 MINUTES BEFORE DEPARTURE",
-                color = Color(0xFF003366),
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Flight info summary
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "$departureCity to $destinationCity",
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "$departureDate at $departureTime",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Flight $flightNumber | ${selectedSeats.joinToString(", ")}",
+                    color = GoldColor,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Divider with dashed line
+            Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFE6EEF8))
-                    .padding(vertical = 4.dp)
+                    .height(1.dp)
+            ) {
+                drawLine(
+                    color = GoldColor.copy(alpha = 0.5f),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 2f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Additional info
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                InfoRow(title = "PASSENGER", value = "${selectedSeats.size} Adult${if (selectedSeats.size > 1) "s" else ""}")
+                InfoRow(title = "ISSUED", value = currentDate)
+                InfoRow(title = "BOOKING REF", value = generateBookingRef())
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Bottom text
+            Text(
+                text = "TAP CARD TO VIEW BOARDING PASS",
+                color = GoldColor.copy(alpha = 0.7f),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
+}
+
+@Composable
+fun InfoRow(title: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = title,
+            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 12.sp
+        )
+        Text(
+            text = value,
+            color = Color.White,
+            fontWeight = FontWeight.Medium,
+            fontSize = 14.sp
+        )
+    }
+}
+
+// Generate a random booking reference code
+private fun generateBookingRef(): String {
+    // In a real app, this would come from the API
+    // For demo purposes, we'll use a fixed value
+    return "FLY4382X"
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TicketScreenPreview() {
+    val navController = rememberNavController()
+
+    TicketScreen(
+        navController = navController,
+        flightNumber = "FA 2240",
+        departureCity = "NEW YORK",
+        destinationCity = "LONDON",
+        departureAirport = "JFK",
+        destinationAirport = "LHR",
+        departureDate = "MAY 15, 2025",
+        departureTime = "10:30",
+        arrivalTime = "22:15",
+        gate = "A22",
+        terminal = "2",
+        boardingTime = "09:45",
+        selectedSeats = listOf("15A", "15B")
+    )
+}
+
+@Composable
+fun BarcodeCode128(
+    data: String,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Color.White,
+    barColor: Color = Color.Black
+) {
+    val encodingPattern = remember(data) {
+        generateCode128EncodingPattern(data)
+    }
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(backgroundColor)
+            .padding(16.dp)
+
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val width = size.width
+            val height = size.height - 20.dp.toPx()
+            val moduleWidth = width / encodingPattern.size
+
+            // Draw the barcode pattern
+            for (i in encodingPattern.indices) {
+                if (encodingPattern[i] == 1) {
+                    drawRect(
+                        color = barColor,
+                        topLeft = Offset(i * moduleWidth, 0f),
+                        size = Size(moduleWidth, height)
+                    )
+                }
+            }
+        }
+
+        // Draw the data text below the barcode
+        Text(
+            text = data,
+            color = barColor,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(top = 8.dp)
+        )
+    }
+}
+
+// Generate Code 128 encoding pattern
+// This is a simplified implementation for visualization purposes
+private fun generateCode128EncodingPattern(data: String): List<Int> {
+    val result = mutableListOf<Int>()
+
+    // Start code (Code B)
+    result.addAll(listOf(1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0))
+
+    // Encode each character
+    // This is a simplified implementation - real Code 128 uses specific patterns
+    for (char in data) {
+        val charCode = char.code
+        // Generate a pseudo-realistic pattern for each character
+        // In a real implementation, you would use actual Code 128 encoding tables
+        for (i in 0 until 11) {
+            result.add(if ((i + charCode) % 2 == 0) 1 else 0)
+        }
+    }
+
+    // Add a simplified checksum
+    val checksum = data.sumOf { it.code } % 103
+    for (i in 0 until 11) {
+        result.add(if ((i + checksum) % 3 == 0) 1 else 0)
+    }
+
+    // Stop code
+    result.addAll(listOf(1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1))
+
+    return result
 }

@@ -1,15 +1,11 @@
 package com.example.flyapp.ui.theme.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,21 +24,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,12 +44,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,594 +59,306 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
-import com.example.flyapp.ui.theme.components.ParticleEffectBackground
+import com.example.flyapp.ui.theme.components.FlightTopAppBar
+import com.example.flyapp.ui.theme.navigition.Screen
 import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
-// Data classes for booking details
-data class FlightBooking(
-    val bookingReference: String,
-    val flightNumber: String,
-    val departure: FlightLocation,
-    val arrival: FlightLocation,
-    val passenger: PassengerInfo,
-    val seatInfo: SeatInfo,
-    val status: BookingStatus,
-    val bookingDate: Date
-)
-
-data class FlightLocation(
-    val airportCode: String,
-    val airportName: String,
-    val cityName: String,
-    val terminal: String,
-    val gate: String,
-    val time: Long
-)
-
-data class PassengerInfo(
+data class PassengerDetails(
     val name: String,
     val passportNumber: String,
-    val ticketClass: TicketClass
+    val nationality: String
 )
 
-data class SeatInfo(
-    val seatNumber: String,
-    val hasExtraLegroom: Boolean = false,
-    val hasWindowSeat: Boolean = false
+data class BookingInfo(
+    val bookingReference: String,
+    val flightNumber: String,
+    val departure: String,
+    val destination: String,
+    val date: String,
+    val time: String,
+    val gate: String,
+    val boardingTime: String,
+    val passengers: List<PassengerDetails>,
+    val selectedSeats: List<String>
 )
 
-enum class BookingStatus {
-    CONFIRMED, CHECKED_IN, IN_PROGRESS, COMPLETED, CANCELLED
-}
-
-enum class TicketClass {
-    ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingDetailsScreen(navController: NavHostController, bookingReference: String = "YTR789") {
-    // Sample booking data (in a real app, this would be fetched from a repository)
+fun BookingDetailsScreen(
+    navController: NavHostController,
+    selectedSeats: List<String> = listOf("1A", "1B", "2C")
+) {
+    // Sample booking information
     val booking = remember {
-        FlightBooking(
-            bookingReference = bookingReference,
-            flightNumber = "AI302",
-            departure = FlightLocation(
-                airportCode = "JFK",
-                airportName = "John F. Kennedy International Airport",
-                cityName = "New York",
-                terminal = "B",
-                gate = "G18", // Changed from G12 as per notification
-                time = 100000000L
+        BookingInfo(
+            bookingReference = "FLY-8X42JK",
+            flightNumber = "FLY-1234",
+            departure = "New York (JFK)",
+            destination = "London (LHR)",
+            date = "30 Apr 2025",
+            time = "14:30",
+            gate = "B12",
+            boardingTime = "13:45",
+            passengers = listOf(
+                PassengerDetails(
+                    name = "John Smith",
+                    passportNumber = "X12345678",
+                    nationality = "United States"
+                ),
+                PassengerDetails(
+                    name = "Jane Smith",
+                    passportNumber = "X87654321",
+                    nationality = "United States"
+                )
             ),
-            arrival = FlightLocation(
-                airportCode = "LAX",
-                airportName = "Los Angeles International Airport",
-                cityName = "Los Angeles",
-                terminal = "5",
-                gate = "53B",
-                time = 10300000L
-
-            ),
-            passenger = PassengerInfo(
-                name = "Alex Johnson",
-                passportNumber = "P123456789",
-                ticketClass = TicketClass.BUSINESS
-            ),
-            seatInfo = SeatInfo(
-                seatNumber = "12A",
-                hasWindowSeat = true,
-                hasExtraLegroom = true
-            ),
-            status = BookingStatus.CONFIRMED,
-            bookingDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                .parse("2025-04-15")!!
+            selectedSeats = selectedSeats
         )
     }
 
     // Animation states
-    var showHeader by remember { mutableStateOf(false) }
-    var showFlightInfo by remember { mutableStateOf(false) }
-    var showPassengerInfo by remember { mutableStateOf(false) }
-    var showTicketActions by remember { mutableStateOf(false) }
+    var isHeaderVisible by remember { mutableStateOf(false) }
+    var isFlightInfoVisible by remember { mutableStateOf(false) }
+    var isPassengerInfoVisible by remember { mutableStateOf(false) }
+    var isSeatInfoVisible by remember { mutableStateOf(false) }
+    var isActionButtonVisible by remember { mutableStateOf(false) }
 
-    // Alpha animations for staggered appearance
-    val headerAlpha by animateFloatAsState(
-        targetValue = if (showHeader) 1f else 0f,
-        animationSpec = tween(durationMillis = 600),
-        label = "header_alpha"
-    )
-
-    val flightInfoAlpha by animateFloatAsState(
-        targetValue = if (showFlightInfo) 1f else 0f,
-        animationSpec = tween(durationMillis = 600),
-        label = "flight_info_alpha"
-    )
-
-    val passengerInfoAlpha by animateFloatAsState(
-        targetValue = if (showPassengerInfo) 1f else 0f,
-        animationSpec = tween(durationMillis = 600),
-        label = "passenger_info_alpha"
-    )
-
-    val actionsAlpha by animateFloatAsState(
-        targetValue = if (showTicketActions) 1f else 0f,
-        animationSpec = tween(durationMillis = 600),
-        label = "actions_alpha"
-    )
-
-    // Trigger animations sequentially
-    LaunchedEffect(key1 = true) {
-        showHeader = true
+    // Launch animations in sequence
+    LaunchedEffect(key1 = Unit) {
+        isHeaderVisible = true
         delay(300)
-        showFlightInfo = true
-        delay(300)
-        showPassengerInfo = true
-        delay(300)
-        showTicketActions = true
+        isFlightInfoVisible = true
+        delay(200)
+        isPassengerInfoVisible = true
+        delay(200)
+        isSeatInfoVisible = true
+        delay(200)
+        isActionButtonVisible = true
     }
 
-    // Scroll state
-    val scrollState = rememberScrollState()
-
+    // Main background with gradient
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF001034),  // Matching HomeScreen gradient
-                        Color(0xFF003045),
-                        Color(0xFF004D40)
+                        DeepBlue,
+                        MediumBlue,
+                        DarkNavyBlue
                     )
                 )
             )
     ) {
-        // Enhanced background animations
-        ParticleEffectBackground()
+        // Security pattern background (matching payment screen)
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    modifier = Modifier.alpha(headerAlpha),
-                    title = {
-                        Column(
-                            modifier = Modifier.padding(start = 8.dp)
-                        ) {
-                            Text(
-                                text = "Booking Details",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Ref: ${booking.bookingReference}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.7f)
-                            )
-                        }
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = { navController.popBackStack() },
-                            modifier = Modifier.padding(start = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    actions = {
-                        // Share button
-                        IconButton(
-                            onClick = { /* Share functionality */ },
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Share ticket",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+            // Draw security pattern lines (like passport security pattern)
+            val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(0f, 0f),
+                end = Offset(canvasWidth, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(canvasWidth, 0f),
+                end = Offset(0f, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            // Draw circular watermark
+            val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 1f, pathEffect = pathEffect)
+            for (i in 1..5) {
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.03f),
+                    radius = canvasHeight / 3f * i / 5f,
+                    center = Offset(canvasWidth / 2f, canvasHeight / 2f),
+                    style = stroke
                 )
             }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+        }
+
+        // Main content column
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Top app bar
+            FlightTopAppBar(
+                textOne = "Booking",
+                textTwo = "Details",
+                navController = navController,
+            )
+            // Success Header
+            AnimatedVisibility(
+                visible = isHeaderVisible,
+                enter = fadeIn(animationSpec = tween(800)) +
+                        slideInVertically(
+                            animationSpec = tween(1000),
+                            initialOffsetY = { -it }
+                        )
             ) {
-                // Flight Card
-                AnimatedVisibility(
-                    visible = showFlightInfo,
-                    enter = fadeIn(tween(600)) + slideInVertically(
-                        initialOffsetY = { it / 2 },
-                        animationSpec = tween(durationMillis = 600)
-                    )
-                ) {
-                    FlightCard(booking = booking)
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Passenger Information Card
-                AnimatedVisibility(
-                    visible = showPassengerInfo,
-                    enter = fadeIn(tween(600)) + slideInVertically(
-                        initialOffsetY = { it / 2 },
-                        animationSpec = tween(durationMillis = 600)
-                    )
-                ) {
-                    PassengerInfoCard(passenger = booking.passenger, seatInfo = booking.seatInfo)
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Ticket Actions
-                AnimatedVisibility(
-                    visible = showTicketActions,
-                    enter = fadeIn(tween(600)) + slideInVertically(
-                        initialOffsetY = { it / 2 },
-                        animationSpec = tween(durationMillis = 600)
-                    )
-                ) {
-                    TicketActionsCard(status = booking.status)
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
+                BookingSuccessHeader()
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Flight details card
+            AnimatedVisibility(
+                visible = isFlightInfoVisible,
+                enter = fadeIn(animationSpec = tween(800)) +
+                        slideInHorizontally(
+                            animationSpec = tween(1000),
+                            initialOffsetX = { -it }
+                        )
+            ) {
+                FlightDetailsCard(booking)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Passenger details
+            AnimatedVisibility(
+                visible = isPassengerInfoVisible,
+                enter = fadeIn(animationSpec = tween(800)) +
+                        slideInHorizontally(
+                            animationSpec = tween(1000),
+                            initialOffsetX = { it }
+                        )
+            ) {
+                PassengerDetailsCard(booking.passengers)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Seat information
+            AnimatedVisibility(
+                visible = isSeatInfoVisible,
+                enter = fadeIn(animationSpec = tween(800)) +
+                        slideInVertically(
+                            animationSpec = tween(1000),
+                            initialOffsetY = { it / 2 }
+                        )
+            ) {
+                SeatInformationCard(booking.selectedSeats)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Share and Download Buttons
+            AnimatedVisibility(
+                visible = isActionButtonVisible,
+                enter = fadeIn(animationSpec = tween(500)) +
+                        slideInVertically(
+                            animationSpec = tween(700),
+                            initialOffsetY = { it }
+                        )
+            ) {
+                ActionButtons(navController)
+            }
+
+            // Bottom spacer for scrolling
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-fun FlightCard(booking: FlightBooking) {
-    // Animation for card pulsing effect
-    val infiniteTransition = rememberInfiniteTransition(label = "flight_card_animation")
-    val cardScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.02f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "card_scale"
-    )
-
-    val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val dayFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
-
-    Box(
+fun BookingSuccessHeader() {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp)
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .scale(cardScale)
-                .shadow(8.dp, RoundedCornerShape(16.dp)),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF1A3546).copy(alpha = 0.9f)
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                // Flight header with status
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painterResource(R.drawable.plane_ticket),
-                            contentDescription = null,
-                            tint = Color(0xFF4CAF50),
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = booking.flightNumber,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    }
-
-                    StatusBadge(status = booking.status)
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Flight route
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Departure info
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = booking.departure.airportCode,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
-                        )
-                        Text(
-                            text = booking.departure.cityName,
-                            fontSize = 16.sp,
-                            color = Color.White.copy(alpha = 0.7f)
-                        )
-                        Text(
-                            text = dateFormat.format(booking.departure.time),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50)
-                        )
-                        Text(
-                            text = dayFormat.format(booking.departure.time),
-                            fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.7f)
-                        )
-                    }
-
-                    // Flight path visualization
-                    FlightPathIndicator()
-
-                    // Arrival info
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = booking.arrival.airportCode,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            text = booking.arrival.cityName,
-                            fontSize = 16.sp,
-                            color = Color.White.copy(alpha = 0.7f),
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            text = dateFormat.format(booking.arrival.time),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50),
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            text = dayFormat.format(booking.arrival.time),
-                            fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.7f),
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Terminal and gate info
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Departure terminal/gate
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "TERMINAL",
-                            fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.5f)
-                        )
-                        Text(
-                            text = booking.departure.terminal,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "GATE",
-                            fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.5f)
-                        )
-                        GateIndicator(gate = booking.departure.gate)
-                    }
-
-                    // Arrival terminal/gate
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "TERMINAL",
-                            fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.5f),
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            text = booking.arrival.terminal,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "GATE",
-                            fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.5f),
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            GateIndicator(
-                                gate = booking.arrival.gate,
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun FlightPathIndicator() {
-    // Animated plane position
-    val infiniteTransition = rememberInfiniteTransition(label = "flight_path_animation")
-    val planeOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "plane_offset"
-    )
-
-    Box(
-        modifier = Modifier
-            .width(100.dp)
-            .padding(vertical = 24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // Dotted line
-        Divider(
-            color = Color.White.copy(alpha = 0.3f),
-            thickness = 1.dp,
-            modifier = Modifier.padding(vertical = 12.dp)
-        )
-
-        // Plane icon
-        Icon(
-            painter = painterResource(R.drawable.plane_ticket),
-            contentDescription = null,
-            tint = Color(0xFF4CAF50),
-            modifier = Modifier
-                .size(24.dp)
-                .offset(x = (planeOffset * 70 - 35).dp, y = (-6).dp)
-        )
-    }
-}
-
-@Composable
-fun GateIndicator(gate: String, modifier: Modifier = Modifier) {
-    // Pulsing animation for the gate indicator
-    val infiniteTransition = rememberInfiniteTransition(label = "gate_animation")
-    val gateAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.7f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "gate_alpha"
-    )
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
+        // Success icon with circle background
         Box(
             modifier = Modifier
-                .size(8.dp)
-                .alpha(gateAlpha)
-                .background(Color(0xFF4CAF50), CircleShape)
-        )
+                .size(80.dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            GoldColor.copy(alpha = 0.7f),
+                            GoldColor.copy(alpha = 0.0f)
+                        )
+                    ),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(GoldColor.copy(alpha = 0.2f), CircleShape)
+                    .border(2.dp, GoldColor, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Success",
+                    tint = GoldColor,
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+        }
 
-        Spacer(modifier = Modifier.width(6.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // Success text
         Text(
-            text = gate,
-            fontSize = 18.sp,
+            text = "BOOKING CONFIRMED",
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = GoldColor
         )
-    }
-}
 
-@Composable
-fun StatusBadge(status: BookingStatus) {
-    val (statusText, statusColor) = when (status) {
-        BookingStatus.CONFIRMED -> Pair("Confirmed", Color(0xFF4CAF50)) // Green
-        BookingStatus.CHECKED_IN -> Pair("Checked In", Color(0xFF2196F3)) // Blue
-        BookingStatus.IN_PROGRESS -> Pair("In Progress", Color(0xFFFF9800)) // Orange
-        BookingStatus.COMPLETED -> Pair("Completed", Color(0xFF9C27B0)) // Purple
-        BookingStatus.CANCELLED -> Pair("Cancelled", Color(0xFFF44336)) // Red
-    }
+        Spacer(modifier = Modifier.height(8.dp))
 
-    // Pulsing animation for status
-    val infiniteTransition = rememberInfiniteTransition(label = "status_animation")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.7f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse_alpha"
-    )
-
-    Box(
-        modifier = Modifier
-            .alpha(pulseAlpha)
-            .clip(RoundedCornerShape(16.dp))
-            .background(statusColor.copy(alpha = 0.2f))
-            .border(1.dp, statusColor.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-    ) {
+        // Booking reference
         Text(
-            text = statusText,
-            color = statusColor,
+            text = "Booking Reference: FLY-8X42JK",
+            fontSize = 16.sp,
+            color = Color.White.copy(alpha = 0.8f)
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Confirmation message
+        Text(
+            text = "Your booking details have been sent to your email",
             fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
+            color = Color.White.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center
         )
     }
 }
 
 @Composable
-fun PassengerInfoCard(passenger: PassengerInfo, seatInfo: SeatInfo) {
+fun FlightDetailsCard(booking: BookingInfo) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp)
-            .shadow(6.dp, RoundedCornerShape(16.dp)),
-        shape = RoundedCornerShape(16.dp),
+            .padding(horizontal = 16.dp)
+            .shadow(8.dp, RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f),
+                        GoldColor.copy(alpha = 0.7f)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape =  RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1A3546).copy(alpha = 0.9f)
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
         )
     ) {
         Column(
@@ -662,140 +366,164 @@ fun PassengerInfoCard(passenger: PassengerInfo, seatInfo: SeatInfo) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Section title
-            Text(
-                text = "Passenger Details",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Passenger name
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Passenger",
-                    fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.7f)
-                )
-                Text(
-                    text = passenger.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Divider(color = Color.White.copy(alpha = 0.1f))
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Passport
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Passport/ID",
-                    fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.7f)
-                )
-                Text(
-                    text = passenger.passportNumber,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Divider(color = Color.White.copy(alpha = 0.1f))
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Class
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Class",
-                    fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.7f)
-                )
-
-                val classColor = when (passenger.ticketClass) {
-                    TicketClass.FIRST -> Color(0xFFAD1457) // Dark Pink
-                    TicketClass.BUSINESS -> Color(0xFF4CAF50) // Green
-                    TicketClass.PREMIUM_ECONOMY -> Color(0xFF2196F3) // Blue
-                    TicketClass.ECONOMY -> Color(0xFFFF9800) // Orange
-                }
-
-                val className = when (passenger.ticketClass) {
-                    TicketClass.FIRST -> "First Class"
-                    TicketClass.BUSINESS -> "Business Class"
-                    TicketClass.PREMIUM_ECONOMY -> "Premium Economy"
-                    TicketClass.ECONOMY -> "Economy"
-                }
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(classColor.copy(alpha = 0.2f))
-                        .border(1.dp, classColor.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = className,
-                        color = classColor,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Divider(color = Color.White.copy(alpha = 0.1f))
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Seat
+            // Card header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Seat",
-                    fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.7f)
+                    text = "FLIGHT DETAILS",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = GoldColor
                 )
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (seatInfo.hasWindowSeat) {
-                        SeatFeatureBadge(
-                            text = "Window",
-                            color = Color(0xFF2196F3) // Blue
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
+                Text(
+                    text = booking.flightNumber,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+            }
 
-                    if (seatInfo.hasExtraLegroom) {
-                        SeatFeatureBadge(
-                            text = "Extra Legroom",
-                            color = Color(0xFF9C27B0) // Purple
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
 
+            // Flight route
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Departure
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
                     Text(
-                        text = seatInfo.seatNumber,
+                        text = "FROM",
+                        fontSize = 12.sp,
+                        color = GoldColor.copy(alpha = 0.8f)
+                    )
+                    Text(
+                        text = booking.departure,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = Color.White
                     )
+                }
+
+                // Flight path icon
+                Icon(
+                    painter = painterResource(id = R.drawable.plane_path),
+                    contentDescription = "Flight path",
+                    tint = GoldColor,
+                    modifier = Modifier.size(24.dp)
+                )
+
+                // Destination
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "TO",
+                        fontSize = 12.sp,
+                        color = GoldColor.copy(alpha = 0.8f)
+                    )
+                    Text(
+                        text = booking.destination,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Date, time, gate and boarding
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Date and time column
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // Date row
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.date_range),
+                            contentDescription = "Date",
+                            tint = GoldColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = booking.date,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Time row
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.access_time),
+                            contentDescription = "Time",
+                            tint = GoldColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = booking.time,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                // Gate and boarding column
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    // Gate row
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "GATE",
+                            fontSize = 12.sp,
+                            color = GoldColor.copy(alpha = 0.8f)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = booking.gate,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Boarding time row
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "BOARDING",
+                            fontSize = 12.sp,
+                            color = GoldColor.copy(alpha = 0.8f)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = booking.boardingTime,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -803,132 +531,370 @@ fun PassengerInfoCard(passenger: PassengerInfo, seatInfo: SeatInfo) {
 }
 
 @Composable
-fun SeatFeatureBadge(text: String, color: Color) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(color.copy(alpha = 0.2f))
-            .padding(horizontal = 6.dp, vertical = 2.dp)
-    ) {
-        Text(
-            text = text,
-            color = color,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-
-@Composable
-fun TicketActionsCard(status: BookingStatus) {
-    // Animation for button pulsing
-    val infiniteTransition = rememberInfiniteTransition(label = "button_animation")
-    val buttonScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "button_scale"
-    )
-
+fun PassengerDetailsCard(passengers: List<PassengerDetails>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp)
-            .shadow(6.dp, RoundedCornerShape(16.dp)),
+            .padding(horizontal = 16.dp)
+            .shadow(8.dp, RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f),
+                        GoldColor.copy(alpha = 0.7f)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1A3546).copy(alpha = 0.9f)
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-            // Download boarding pass button
-            Button(
-                onClick = { /* Download boarding pass */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .scale(buttonScale),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50)
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    painterResource(R.drawable.download),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                // Completing the TicketActionsCard function
-                Text(
-                text = "Download Boarding Pass",
+            // Card header
+            Text(
+                text = "PASSENGER DETAILS",
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-                )
-            }
+                fontWeight = FontWeight.Bold,
+                color = GoldColor
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
 
-            // Check-in button (conditional based on status)
-            if (status == BookingStatus.CONFIRMED) {
-                Button(
-                    onClick = { /* Check-in functionality */ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2196F3)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Check-in Now",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+            // Passenger list
+            passengers.forEachIndexed { index, passenger ->
+                PassengerItem(passenger)
+
+                // Add divider between passengers (but not after the last one)
+                if (index < passengers.size - 1) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        color = GoldColor.copy(alpha = 0.1f)
                     )
                 }
-            } else if (status == BookingStatus.CHECKED_IN) {
+            }
+        }
+    }
+}
+
+@Composable
+fun PassengerItem(passenger: PassengerDetails) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Passenger name
+        Text(
+            text = passenger.name,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Passport details
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Passport number
+            Column {
                 Text(
-                    text = "You are checked in successfully",
+                    text = "PASSPORT",
+                    fontSize = 12.sp,
+                    color = GoldColor.copy(alpha = 0.8f)
+                )
+                Text(
+                    text = passenger.passportNumber,
                     fontSize = 14.sp,
-                    color = Color(0xFF4CAF50),
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    color = Color.White.copy(alpha = 0.8f)
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // View flight details button
-            Button(
-                onClick = { /* View flight details */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1A3546)
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
+            // Nationality
+            Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "View Flight Details",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "NATIONALITY",
+                    fontSize = 12.sp,
+                    color = GoldColor.copy(alpha = 0.8f)
+                )
+                Text(
+                    text = passenger.nationality,
+                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.8f)
                 )
             }
         }
     }
 }
 
+@Composable
+fun SeatInformationCard(selectedSeats: List<String>) {
+    // Calculate fares based on seat types
+    val firstClassSeats = selectedSeats.filter {
+        val row = it.substring(0, it.length - 1).toInt()
+        row <= 2
+    }.sorted()
+
+    val businessClassSeats = selectedSeats.filter {
+        val row = it.substring(0, it.length - 1).toInt()
+        row in 3..7
+    }.sorted()
+
+    val economyClassSeats = selectedSeats.filter {
+        val row = it.substring(0, it.length - 1).toInt()
+        row > 7
+    }.sorted()
+
+    // Calculate total price
+    val totalPrice = (firstClassSeats.size * 450) + (businessClassSeats.size * 250) + (economyClassSeats.size * 120)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .shadow(8.dp, RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = 0.7f),
+                        GoldColor.copy(alpha = 0.3f),
+                        GoldColor.copy(alpha = 0.7f)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Card header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painterResource(R.drawable.seat),
+                        contentDescription = "Seats",
+                        tint = GoldColor,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "SEAT INFORMATION",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GoldColor
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
+
+            // Seat class sections
+            if (firstClassSeats.isNotEmpty()) {
+                SeatClassSection(
+                    title = "First Class",
+                    seats = firstClassSeats,
+                    pricePerSeat = 450
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (businessClassSeats.isNotEmpty()) {
+                SeatClassSection(
+                    title = "Business Class",
+                    seats = businessClassSeats,
+                    pricePerSeat = 250
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (economyClassSeats.isNotEmpty()) {
+                SeatClassSection(
+                    title = "Economy Class",
+                    seats = economyClassSeats,
+                    pricePerSeat = 120
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Total price
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "TOTAL PAID",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = GoldColor
+                )
+
+                Text(
+                    text = "€$totalPrice",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = GoldColor
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SeatClassSection(title: String, seats: List<String>, pricePerSeat: Int) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = title,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Seat numbers
+            Text(
+                text = seats.joinToString(", "),
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+
+            // Price calculation
+            Text(
+                text = "${seats.size} × €$pricePerSeat = €${seats.size * pricePerSeat}",
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+        }
+    }
+}
+
+@Composable
+fun ActionButtons(navController: NavHostController) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Share boarding pass button
+        Button(
+            onClick = { /* Share functionality */ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = GoldColor,
+                contentColor = DarkNavyBlue
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(
+                Icons.Default.Share,
+                contentDescription = "Share",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "SHARE BOARDING PASS",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Download boarding pass button (outlined style)
+        Button(
+            onClick = { /* Download functionality */ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = GoldColor
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.download),
+                contentDescription = "Download",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "DOWNLOAD BOARDING PASS",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Return to home button
+        Button(
+            onClick = { navController.navigate(Screen.HomeScreen.route) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DarkNavyBlue.copy(alpha = 0.8f),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = "RETURN TO HOME",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+        }
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun BookingDetailsScreenPreview() {
-    BookingDetailsScreen(navController = rememberNavController())
+    val navController = rememberNavController()
+    BookingDetailsScreen(navController = navController)
 }
+

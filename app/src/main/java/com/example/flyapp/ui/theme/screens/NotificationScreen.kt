@@ -4,12 +4,14 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,223 +21,181 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Divider
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.flyapp.ui.theme.components.ParticleEffectBackground
+import com.example.flyapp.R
+import com.example.flyapp.ui.theme.navigition.Screen
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.example.flyapp.R
-
-// Data class for notification items
 data class NotificationItem(
     val id: String,
     val title: String,
     val message: String,
+    val timestamp: Long,
     val type: NotificationType,
-    val timestamp: Date,
-    var isRead: Boolean = false
+    val isRead: Boolean = false,
+    val relatedOfferId: String? = null,
+    val actionable: Boolean = false
 )
 
-// Enum for notification types
+// Define notification types
 enum class NotificationType {
-    BOOKING_CONFIRMATION, FLIGHT_UPDATE, SPECIAL_OFFER, GATE_CHANGE, SYSTEM_ALERT
+    PROMO,
+    PRICE_ALERT,
+    TRAVEL_UPDATE,
+    SYSTEM,
+    BOOKING_CONFIRMATION
 }
 
-// Enum for notification filters
-enum class NotificationFilter {
-    ALL, UNREAD, BOOKINGS, UPDATES, OFFERS
+// Extension function to get color based on notification type
+fun NotificationType.color(): Color {
+    return when (this) {
+        NotificationType.PROMO -> Color(0xFFF9A825)  // Gold/Yellow
+        NotificationType.PRICE_ALERT -> Color(0xFF4CAF50)  // Green
+        NotificationType.TRAVEL_UPDATE -> Color(0xFF2196F3)  // Blue
+        NotificationType.SYSTEM -> Color(0xFF9E9E9E)  // Gray
+        NotificationType.BOOKING_CONFIRMATION -> Color(0xFF8E24AA)  // Purple
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// Extension function to get display name
+fun NotificationType.displayName(): String {
+    return when (this) {
+        NotificationType.PROMO -> "Promotion"
+        NotificationType.PRICE_ALERT -> "Price Alert"
+        NotificationType.TRAVEL_UPDATE -> "Travel Update"
+        NotificationType.SYSTEM -> "System"
+        NotificationType.BOOKING_CONFIRMATION -> "Booking Confirmation"
+    }
+}
+
 @Composable
-fun NotificationScreen(navController: NavHostController) {
-    // State for notifications
+fun NotificationScreen(
+    navController: NavController
+) {
+    // Sample notifications data
     val notifications = remember {
         mutableStateListOf(
             NotificationItem(
-                id = "notif1",
-                title = "Flight Booking Confirmed",
-                message = "Your flight to New York on 25 May has been confirmed. Booking reference: YTR789.",
+                id = "1",
+                title = "Flash Sale: 48-Hour Offer",
+                message = "Don't miss our NYC to London flash sale with 38% discount. Valid until May 2.",
+                timestamp = System.currentTimeMillis() - (1000 * 60 * 30), // 30 minutes ago
+                type = NotificationType.PROMO,
+                relatedOfferId = "FLASH001",
+                actionable = true
+            ),
+            NotificationItem(
+                id = "2",
+                title = "Price Drop Alert",
+                message = "Prices for your saved route Chicago to Tokyo have dropped by 15%. Book now for the best deal!",
+                timestamp = System.currentTimeMillis() - (1000 * 60 * 60 * 3), // 3 hours ago
+                type = NotificationType.PRICE_ALERT,
+                relatedOfferId = "FREQ001",
+                actionable = true
+            ),
+            NotificationItem(
+                id = "3",
+                title = "Booking Confirmed",
+                message = "Your booking #BK78945 from Boston to Paris has been confirmed. Check your email for details.",
+                timestamp = System.currentTimeMillis() - (1000 * 60 * 60 * 12), // 12 hours ago
                 type = NotificationType.BOOKING_CONFIRMATION,
-                timestamp = Date(System.currentTimeMillis() - (3 * 60 * 60 * 1000)), // 3 hours ago
-                isRead = false
-            ),
-            NotificationItem(
-                id = "notif2",
-                title = "Gate Change Alert",
-                message = "Your flight AI302 gate has changed from G12 to G18. Please proceed to the new gate.",
-                type = NotificationType.GATE_CHANGE,
-                timestamp = Date(System.currentTimeMillis() - (8 * 60 * 60 * 1000)), // 8 hours ago
-                isRead = false
-            ),
-            NotificationItem(
-                id = "notif3",
-                title = "Special Summer Offer",
-                message = "Enjoy 20% off on all international flights booked this weekend. Use code SUMMER20.",
-                type = NotificationType.SPECIAL_OFFER,
-                timestamp = Date(System.currentTimeMillis() - (1 * 24 * 60 * 60 * 1000)), // 1 day ago
                 isRead = true
             ),
             NotificationItem(
-                id = "notif4",
-                title = "Flight Schedule Update",
-                message = "Your flight to Paris on 30 May has been rescheduled to depart at 14:30 instead of 13:45.",
-                type = NotificationType.FLIGHT_UPDATE,
-                timestamp = Date(System.currentTimeMillis() - (2 * 24 * 60 * 60 * 1000)), // 2 days ago
+                id = "4",
+                title = "New Bundle Offers Available",
+                message = "Check out our new flight + hotel bundles for your next vacation. Save up to 22% on selected destinations.",
+                timestamp = System.currentTimeMillis() - (1000 * 60 * 60 * 24), // 1 day ago
+                type = NotificationType.PROMO,
+                relatedOfferId = "BUND001",
+                actionable = true
+            ),
+            NotificationItem(
+                id = "5",
+                title = "Gate Change Notice",
+                message = "Your upcoming flight LA to Miami has a gate change. New gate: B23. Please check airport displays for confirmation.",
+                timestamp = System.currentTimeMillis() - (1000 * 60 * 60 * 48), // 2 days ago
+                type = NotificationType.TRAVEL_UPDATE,
                 isRead = true
             ),
             NotificationItem(
-                id = "notif5",
-                title = "Important: Check-in Available",
-                message = "Online check-in for your flight to Tokyo is now available. Check in now to select your preferred seat.",
-                type = NotificationType.SYSTEM_ALERT,
-                timestamp = Date(System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000)), // 3 days ago
-                isRead = false
-            ),
-            NotificationItem(
-                id = "notif6",
-                title = "Weekend Getaway Deals",
-                message = "Discover amazing weekend getaway deals starting from just $99. Limited time offer!",
-                type = NotificationType.SPECIAL_OFFER,
-                timestamp = Date(System.currentTimeMillis() - (5 * 24 * 60 * 60 * 1000)), // 5 days ago
-                isRead = true
-            ),
-            NotificationItem(
-                id = "notif7",
-                title = "Flight Delay Notification",
-                message = "Your flight SQ421 has been delayed by 45 minutes. New departure time: 18:15.",
-                type = NotificationType.FLIGHT_UPDATE,
-                timestamp = Date(System.currentTimeMillis() - (6 * 24 * 60 * 60 * 1000)), // 6 days ago
+                id = "6",
+                title = "App Update Available",
+                message = "A new version of FlyApp is available with improved booking experience and bug fixes.",
+                timestamp = System.currentTimeMillis() - (1000 * 60 * 60 * 72), // 3 days ago
+                type = NotificationType.SYSTEM,
                 isRead = true
             )
         )
     }
 
-    // Animation states for staggered UI appearance
-    var showHeaderSection by remember { mutableStateOf(false) }
-    var showFiltersSection by remember { mutableStateOf(false) }
-    var showNotificationsList by remember { mutableStateOf(false) }
+    // State for showing content animation
+    var showContent by remember { mutableStateOf(false) }
+    var showFilterDialog by remember { mutableStateOf(false) }
 
-    // Alpha animations for staggered appearance
-    val headerAlpha by animateFloatAsState(
-        targetValue = if (showHeaderSection) 1f else 0f,
-        animationSpec = tween(durationMillis = 600),
-        label = "header_alpha"
+    // Animation for the background effect
+    val infiniteTransition = rememberInfiniteTransition(label = "background")
+    val hologramGlow by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hologram_glow"
     )
 
-    val filtersAlpha by animateFloatAsState(
-        targetValue = if (showFiltersSection) 1f else 0f,
-        animationSpec = tween(durationMillis = 600),
-        label = "filters_alpha"
-    )
-
-    val listAlpha by animateFloatAsState(
-        targetValue = if (showNotificationsList) 1f else 0f,
-        animationSpec = tween(durationMillis = 800),
-        label = "list_alpha"
-    )
-
-    // Current selected filter
-    var selectedFilter by remember { mutableStateOf(NotificationFilter.ALL) }
-
-    // Filtered notifications
-    val filteredNotifications = remember(notifications, selectedFilter) {
-        when (selectedFilter) {
-            NotificationFilter.ALL -> notifications
-            NotificationFilter.UNREAD -> notifications.filter { !it.isRead }
-            NotificationFilter.BOOKINGS -> notifications.filter {
-                it.type == NotificationType.BOOKING_CONFIRMATION
-            }
-            NotificationFilter.UPDATES -> notifications.filter {
-                it.type == NotificationType.FLIGHT_UPDATE || it.type == NotificationType.GATE_CHANGE
-            }
-            NotificationFilter.OFFERS -> notifications.filter {
-                it.type == NotificationType.SPECIAL_OFFER
-            }
-        }
-    }
-
-    // Unread count
-    val unreadCount = notifications.count { !it.isRead }
-
-    // Coroutine scope for animation delays
-    val coroutineScope = rememberCoroutineScope()
-
-    // Function to mark notification as read
-    fun markAsRead(notification: NotificationItem) {
-        val index = notifications.indexOf(notification)
-        if (index != -1) {
-            notifications[index] = notification.copy(isRead = true)
-        }
-    }
-
-    // Function to delete notification
-    fun deleteNotification(notification: NotificationItem) {
-        notifications.remove(notification)
-    }
-
-    // Function to mark all as read
-    fun markAllAsRead() {
-        val updatedList = notifications.map { it.copy(isRead = true) }
-        notifications.clear()
-        notifications.addAll(updatedList)
-    }
-
-    // Trigger animations sequentially
+    // Trigger content animation
     LaunchedEffect(key1 = true) {
-        showHeaderSection = true
         delay(300)
-        showFiltersSection = true
-        delay(200)
-        showNotificationsList = true
+        showContent = true
     }
 
     Box(
@@ -244,277 +204,184 @@ fun NotificationScreen(navController: NavHostController) {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF001034),  // Matching HomeScreen gradient
-                        Color(0xFF003045),
-                        Color(0xFF004D40)
+                        DeepBlue,
+                        MediumBlue,
+                        DarkNavyBlue
                     )
                 )
             )
     ) {
-        // Enhanced background animations
-        ParticleEffectBackground()
+        // Security pattern background (same as in OfferDetailsScreen)
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    modifier = Modifier.alpha(headerAlpha),
-                    title = {
-                        Column(
-                            modifier = Modifier.padding(start = 8.dp)
-                        ) {
-                            Text(
-                                text = "Notifications",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "$unreadCount unread messages",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.7f)
-                            )
-                        }
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = { navController.popBackStack() },
-                            modifier = Modifier.padding(start = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    actions = {
-                        // Mark all as read button with animation
-                        val markAllBtnTransition = rememberInfiniteTransition(label = "mark_all_btn")
-                        val markAllBtnAlpha by markAllBtnTransition.animateFloat(
-                            initialValue = 0.7f,
-                            targetValue = 1f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(1500, easing = FastOutSlowInEasing),
-                                repeatMode = RepeatMode.Reverse
-                            ),
-                            label = "mark_all_btn_alpha"
-                        )
+            // Draw security pattern lines
+            val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(0f, 0f),
+                end = Offset(canvasWidth, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
 
-                        IconButton(
-                            onClick = { markAllAsRead() },
-                            modifier = Modifier
-                                .alpha(if (unreadCount > 0) markAllBtnAlpha else 0.5f)
-                                .padding(end = 8.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.email_read),
-                                contentDescription = "Mark all as read",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
+            drawLine(
+                color = Color.White.copy(alpha = 0.05f),
+                start = Offset(canvasWidth, 0f),
+                end = Offset(0f, canvasHeight),
+                strokeWidth = 1f,
+                pathEffect = pathEffect
+            )
+
+            // Draw circular watermark
+            for (i in 1..5) {
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.03f),
+                    radius = canvasHeight / 3f * i / 5f,
+                    center = Offset(canvasWidth / 2f, canvasHeight / 2f),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                        width = 1f,
+                        pathEffect = pathEffect
                     )
                 )
             }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
+        }
+
+        // Main content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 16.dp)
+        ) {
+            // Top app bar
+            NotificationTopAppBar(
+                navController = navController,
+                onFilterClick = { showFilterDialog = true }
+            )
+
+            // Notifications content with animation
+            AnimatedVisibility(
+                visible = showContent,
+                enter = fadeIn(tween(800)) + slideInVertically(
+                    initialOffsetY = { it / 3 },
+                    animationSpec = tween(durationMillis = 800)
+                )
             ) {
-                // Notification filters
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .alpha(filtersAlpha)
-                ) {
-                    NotificationFilters(
-                        selectedFilter = selectedFilter,
-                        onFilterSelected = { selectedFilter = it },
-                        unreadCount = unreadCount
-                    )
-                }
+                if (notifications.isEmpty()) {
+                    // Empty state
+                    EmptyNotificationsView()
+                } else {
+                    // List of notifications
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        items(notifications) { notification ->
+                            NotificationCard(
+                                notification = notification,
+                                onNotificationClick = { notificationId ->
+                                    // Mark as read if not already read
+                                    val index = notifications.indexOfFirst { it.id == notificationId }
+                                    if (index != -1 && !notifications[index].isRead) {
+                                        notifications[index] = notifications[index].copy(isRead = true)
+                                    }
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Notification list with animation
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .alpha(listAlpha)
-                ) {
-                    if (filteredNotifications.isEmpty()) {
-                        EmptyNotificationsMessage(selectedFilter)
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                                start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp
+                                    // Navigate to related offer if applicable
+                                    notification.relatedOfferId?.let { offerId ->
+                                        navController.navigate(Screen.OfferDetailsScreen.route)
+                                    }
+                                },
+                                onDeleteClick = { notificationId ->
+                                    // Remove notification
+                                    notifications.removeIf { it.id == notificationId }
+                                }
                             )
-                        ) {
-                            items(filteredNotifications) { notification ->
-                                // State for animation visibility
-                                var isVisible by remember { mutableStateOf(false) }
-                                val index = filteredNotifications.indexOf(notification)
-
-                                // Delayed animation for staggered appearance
-                                LaunchedEffect(showNotificationsList) {
-                                    if (showNotificationsList) {
-                                        delay(100L * index)
-                                        isVisible = true
-                                    }
-                                }
-
-                                // Fixed AnimatedVisibility implementation
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(16.dp)
-                                ) {
-                                    filteredNotifications.forEachIndexed { index, notification ->
-                                        AnimatedVisibility(
-                                            visible = isVisible,
-                                            enter = fadeIn(tween(500))
-                                        ) {
-                                            NotificationCard(
-                                                notification = notification,
-                                                onNotificationClick = {
-                                                    markAsRead(notification)
-                                                    when (notification.type) {
-                                                        NotificationType.BOOKING_CONFIRMATION -> {
-                                                            // Navigate to booking details
-                                                        }
-                                                        NotificationType.SPECIAL_OFFER -> {
-                                                            // Navigate to offers screen
-                                                        }
-                                                        else -> {
-                                                            // Handle other types
-                                                        }
-                                                    }
-                                                },
-                                                onDeleteClick = { deleteNotification(notification) }
-                                            )
-
-                                            if (index < filteredNotifications.lastIndex) {
-                                                Spacer(modifier = Modifier.height(8.dp))
-                                            }
-                                        }
-                                    }
-                                }
-
-                            }
+                            Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
                 }
             }
         }
+
+        // Clear all FAB
+        if (notifications.isNotEmpty()) {
+            FloatingActionButton(
+                onClick = { notifications.clear() },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                containerColor = GoldColor,
+                contentColor = DarkNavyBlue
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Clear All Notifications"
+                )
+            }
+        }
+
+        // Filter Dialog would be implemented here if shown
+        if (showFilterDialog) {
+            // Would implement filter dialog here
+            // For now, just close it after a delay
+            LaunchedEffect(key1 = showFilterDialog) {
+                delay(100)
+                showFilterDialog = false
+            }
+        }
     }
 }
 
 @Composable
-fun NotificationFilters(
-    selectedFilter: NotificationFilter,
-    onFilterSelected: (NotificationFilter) -> Unit,
-    unreadCount: Int
+fun NotificationTopAppBar(
+    navController: NavController,
+    onFilterClick: () -> Unit
 ) {
-    LazyRow(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        items(NotificationFilter.entries.toTypedArray()) { filter ->
-            FilterChip(
-                filter = filter,
-                isSelected = filter == selectedFilter,
-                unreadCount = if (filter == NotificationFilter.UNREAD) unreadCount else null,
-                onSelect = { onFilterSelected(filter) }
-            )
-        }
-    }
-}
-
-@Composable
-fun FilterChip(
-    filter: NotificationFilter,
-    isSelected: Boolean,
-    unreadCount: Int? = null,
-    onSelect: () -> Unit
-) {
-    // Animation properties
-    val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1f else 0.95f,
-        animationSpec = tween(300, easing = FastOutSlowInEasing),
-        label = "scale_anim"
-    )
-
-    val infiniteTransition = rememberInfiniteTransition(label = "chip_animation")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_alpha"
-    )
-
-    val contentAlpha by animateFloatAsState(
-        targetValue = if (isSelected) 1f else 0.7f,
-        animationSpec = tween(300),
-        label = "content_alpha"
-    )
-
-    val filterText = when (filter) {
-        NotificationFilter.ALL -> "All"
-        NotificationFilter.UNREAD -> "Unread"
-        NotificationFilter.BOOKINGS -> "Bookings"
-        NotificationFilter.UPDATES -> "Updates"
-        NotificationFilter.OFFERS -> "Offers"
-    }
-
-    Box(
-        modifier = Modifier.padding(horizontal = 2.dp)
-    ) {
-        // Glow effect for selected chip
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .scale(scale * 1.2f)
-                    .alpha(glowAlpha)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFF4CAF50).copy(alpha = 0.5f),
-                                Color.Transparent
-                            )
-                        )
-                    )
-            )
-        }
-
-        FilledTonalButton(
-            onClick = onSelect,
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.scale(scale),
-            colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = if (isSelected) Color(0xFF4CAF50) else Color(0xFF1A3546).copy(alpha = 0.8f),
-                contentColor = Color.White
-            )
+        // Back button with gold accent (same style as OfferDetailsScreen)
+        IconButton(
+            onClick = { navController.navigateUp() },
+            modifier = Modifier
+                .size(40.dp)
+                .border(1.dp, GoldColor.copy(alpha = 0.8f), CircleShape)
+                .background(DarkNavyBlue.copy(alpha = 0.7f), CircleShape)
         ) {
-            Text(
-                text = if (unreadCount != null && unreadCount > 0) "$filterText ($unreadCount)" else filterText,
-                color = Color.White,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                modifier = Modifier.alpha(contentAlpha)
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = GoldColor
+            )
+        }
+
+        // Screen title
+        Text(
+            text = "NOTIFICATIONS",
+            color = GoldColor,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.sp
+        )
+
+        // Filter button
+        IconButton(
+            onClick = onFilterClick,
+            modifier = Modifier
+                .size(40.dp)
+                .border(1.dp, GoldColor.copy(alpha = 0.8f), CircleShape)
+                .background(DarkNavyBlue.copy(alpha = 0.7f), CircleShape)
+        ) {
+            Icon(
+                painterResource(R.drawable.filter_ic),
+                contentDescription = "Filter",
+                tint = GoldColor
             )
         }
     }
@@ -523,302 +390,207 @@ fun FilterChip(
 @Composable
 fun NotificationCard(
     notification: NotificationItem,
-    onNotificationClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onNotificationClick: (String) -> Unit,
+    onDeleteClick: (String) -> Unit
 ) {
-    // Animation properties
-    val infiniteTransition = rememberInfiniteTransition(label = "card_animation")
-    val unreadPulse by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (notification.isRead) 1f else 1.03f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "unread_pulse"
-    )
+    val formatter = SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault())
+    val timeString = formatter.format(Date(notification.timestamp))
 
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = if (notification.isRead) 0f else 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_alpha"
-    )
-
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        // Glow effect for unread notifications
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .scale(unreadPulse * 1.05f)
-                .alpha(glowAlpha)
-                .shadow(8.dp, RoundedCornerShape(16.dp))
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFF4CAF50).copy(alpha = 0.3f),
-                            Color.Transparent
-                        )
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(12.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        GoldColor.copy(alpha = if (notification.isRead) 0.3f else 0.7f),
+                        GoldColor.copy(alpha = if (notification.isRead) 0.1f else 0.3f)
+                    )
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable { onNotificationClick(notification.id) },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (notification.isRead)
+                DarkNavyBlue.copy(alpha = 0.7f)
+            else
+                DarkNavyBlue.copy(alpha = 0.9f)
         )
-
-        Card(
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .scale(unreadPulse)
-                .shadow(if (notification.isRead) 4.dp else 8.dp, RoundedCornerShape(16.dp))
-                .clickable { onNotificationClick() },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF1A3546).copy(alpha = 0.9f)
-            )
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            // Notification Type Indicator
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.Top
+                    .size(12.dp)
+                    .background(notification.type.color(), CircleShape)
+                    .align(Alignment.Top)
+                    .padding(top = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Notification Content
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                // Notification type icon with animation
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.padding(end = 16.dp, top = 4.dp)
-                ) {
-                    val (icon, iconColor) = getNotificationTypeIcon(notification.type)
-
-                    val iconTransition = rememberInfiniteTransition(label = "icon_animation")
-                    val iconScale by iconTransition.animateFloat(
-                        initialValue = 1f,
-                        targetValue = if (notification.isRead) 1f else 1.1f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(1500, easing = FastOutSlowInEasing),
-                            repeatMode = RepeatMode.Reverse
-                        ),
-                        label = "icon_scale"
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .scale(iconScale)
-                            .shadow(4.dp, CircleShape)
-                            .background(
-                                color = Color(0xFF1A3546),
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = icon,
-                            contentDescription = null,
-                            tint = iconColor,
-                            modifier = Modifier
-                                .size(24.dp)
-                        )
-                    }
-
-                    // Unread indicator
-                    if (!notification.isRead) {
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .align(Alignment.TopEnd)
-                                .offset(x = 2.dp, y = (-2).dp)
-                                .background(Color(0xFF4CAF50), CircleShape)
-                        )
-                    }
-                }
-
-                // Notification content
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
+                // Title row with type badge
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = notification.title,
+                        color = if (notification.isRead) Color.White.copy(alpha = 0.8f) else GoldColor,
                         fontSize = 16.sp,
-                        fontWeight = if (notification.isRead) FontWeight.Medium else FontWeight.Bold,
-                        color = Color.White
+                        fontWeight = if (notification.isRead) FontWeight.Normal else FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = notification.message,
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.7f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    val dateFormat = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
-                    Text(
-                        text = dateFormat.format(notification.timestamp),
-                        fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.5f)
-                    )
+                    // Type indicator pill
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(notification.type.color().copy(alpha = 0.2f))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = notification.type.displayName(),
+                            color = notification.type.color(),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
 
-                // Delete action
-                IconButton(
-                    onClick = onDeleteClick,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .alpha(0.7f)
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Message
+                Text(
+                    text = notification.message,
+                    color = Color.White.copy(alpha = if (notification.isRead) 0.6f else 0.8f),
+                    fontSize = 14.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Time and action indicator
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete notification",
-                        tint = Color.White
+                    Text(
+                        text = timeString,
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontSize = 12.sp
                     )
+
+                    if (notification.actionable) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null,
+                                tint = GoldColor.copy(alpha = 0.7f),
+                                modifier = Modifier.size(16.dp).rotate(90f)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "View Details",
+                                color = GoldColor.copy(alpha = 0.7f),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+
+                // Related offer indicator if applicable
+                notification.relatedOfferId?.let {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Divider(color = GoldColor.copy(alpha = 0.3f), thickness = 0.5.dp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.plane_ticket),
+                            contentDescription = null,
+                            tint = GoldColor.copy(alpha = 0.7f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Related offer: $it",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                    }
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun EmptyNotificationsMessage(filter: NotificationFilter) {
-    val message = when (filter) {
-        NotificationFilter.ALL -> "No notifications yet"
-        NotificationFilter.UNREAD -> "No unread notifications"
-        NotificationFilter.BOOKINGS -> "No booking notifications"
-        NotificationFilter.UPDATES -> "No flight updates"
-        NotificationFilter.OFFERS -> "No special offers"
-    }
+            Spacer(modifier = Modifier.width(8.dp))
 
-    val subMessage = when (filter) {
-        NotificationFilter.ALL -> "We'll notify you when there's something important"
-        NotificationFilter.UNREAD -> "All notifications have been read"
-        NotificationFilter.BOOKINGS -> "Book a flight to receive booking confirmations"
-        NotificationFilter.UPDATES -> "Your flights are currently on schedule"
-        NotificationFilter.OFFERS -> "Check back soon for special deals"
-    }
-
-    val emptyIcon = Icons.Outlined.Notifications
-
-    // Animation for empty state
-    val infiniteTransition = rememberInfiniteTransition(label = "empty_animation")
-    val iconScale by infiniteTransition.animateFloat(
-        initialValue = 0.9f,
-        targetValue = 1.1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "icon_scale"
-    )
-
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.1f,
-        targetValue = 0.4f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_alpha"
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Icon with glow effect
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            // Glow effect
-            Box(
+            // Delete button
+            IconButton(
+                onClick = { onDeleteClick(notification.id) },
                 modifier = Modifier
-                    .size(120.dp)
-                    .scale(iconScale * 1.2f)
-                    .alpha(glowAlpha)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFF4CAF50).copy(alpha = 0.5f),
-                                Color.Transparent
-                            )
-                        ),
-                        shape = CircleShape
-                    )
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .scale(iconScale)
-                    .shadow(8.dp, CircleShape)
-                    .background(
-                        color = Color(0xFF1A3546),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
+                    .size(32.dp)
+                    .border(1.dp, GoldColor.copy(alpha = 0.4f), CircleShape)
+                    .background(Color.Transparent)
             ) {
                 Icon(
-                    imageVector = emptyIcon,
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.size(40.dp)
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Delete",
+                    tint = GoldColor.copy(alpha = 0.7f),
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text(
-            text = message,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = subMessage,
-            fontSize = 16.sp,
-            color = Color.White.copy(alpha = 0.7f),
-            modifier = Modifier.padding(horizontal = 32.dp)
-        )
     }
 }
 
 @Composable
-fun getNotificationTypeIcon(type: NotificationType): Pair<Painter, Color> {
-    return when (type) {
-        NotificationType.BOOKING_CONFIRMATION -> Pair(
-            painterResource(R.drawable.plane_ticket),
-            Color(0xFF4CAF50) // Green
+fun EmptyNotificationsView() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.notification_),
+            contentDescription = null,
+            tint = GoldColor.copy(alpha = 0.7f),
+            modifier = Modifier.size(80.dp)
         )
-        NotificationType.FLIGHT_UPDATE -> Pair(
-            painterResource(R.drawable.plane_ticket),
-            Color(0xFF2196F3) // Blue
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "No Notifications",
+            color = Color.White,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
         )
-        NotificationType.SPECIAL_OFFER -> Pair(
-            painterResource(R.drawable.summer_offer),
-            Color(0xFFFF9800) // Orange
-        )
-        NotificationType.GATE_CHANGE -> Pair(
-            painterResource(R.drawable.check_circle),
-            Color(0xFF9C27B0) // Purple
-        )
-        NotificationType.SYSTEM_ALERT -> Pair(
-            painterResource(R.drawable.error),
-            Color(0xFFF44336) // Red
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "You don't have any notifications at the moment. Check back later for updates on your flights, special offers, and more.",
+            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
         )
     }
 }
@@ -826,5 +598,12 @@ fun getNotificationTypeIcon(type: NotificationType): Pair<Painter, Color> {
 @Preview(showBackground = true)
 @Composable
 fun NotificationScreenPreview() {
-    NotificationScreen(rememberNavController())
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        NotificationScreen(
+            navController = rememberNavController()
+        )
+    }
 }

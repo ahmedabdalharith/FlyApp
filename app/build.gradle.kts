@@ -58,6 +58,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("androidx.navigation:navigation-compose:2.8.9")
-// Step 1: Enable OpenGL in build.gradle
-    implementation("io.github.sceneview:sceneview:2.2.1")
+
+    implementation("io.github.sceneview:sceneview:2.3.0")
+
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
 }
