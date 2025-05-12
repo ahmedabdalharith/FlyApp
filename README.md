@@ -61,3 +61,10 @@ FlyApp is a modern Android application that allows users to search, book, and ma
 🎯 Project Goal:
 
 To deliver a beautiful and functional mobile flight booking experience that competes with the best travel apps by combining smooth UX with advanced booking features.
+
+## 📱 App Screenshots
+
+![Splash Screen](screenshots/splash_screen.png)
+![Search Screen](screenshots/search_flights.png)
+![Booking Screen](screenshots/booking.png)
+
