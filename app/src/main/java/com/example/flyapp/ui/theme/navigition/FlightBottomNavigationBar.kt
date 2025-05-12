@@ -1,11 +1,10 @@
-package com.example.flyapp.ui.theme.components
+package com.example.flyapp.ui.theme.navigition
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -48,20 +47,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
-import com.example.flyapp.ui.theme.navigition.Screen
-import com.example.flyapp.ui.theme.screens.DarkNavyBlue
-import com.example.flyapp.ui.theme.screens.GoldColor
-import com.example.flyapp.ui.theme.screens.MediumBlue
+import com.example.flyapp.ui.theme.theme.GoldColor
+import com.example.flyapp.ui.theme.theme.MediumBlue
+
 
 @Composable
 fun FlightBottomNavigationBar(
@@ -141,9 +138,6 @@ private fun NavigationBarContent(
     }
 }
 
-/**
- * Extracted navigation logic for better code organization
- */
 private fun navigateToDestination(navController: NavHostController, route: String) {
     navController.navigate(route) {
         // Pop up to the start destination of the graph to
@@ -157,10 +151,6 @@ private fun navigateToDestination(navController: NavHostController, route: Strin
         restoreState = true
     }
 }
-
-/**
- * Enhanced navigation item with animations and visual effects
- */
 @Composable
 fun EnhancedNavigationItem(
     icon: Painter,
@@ -227,7 +217,7 @@ private fun NavigationItemIcon(
     isSelected: Boolean,
     badgeCount: Int,
     color: Color,
-    itemSize: androidx.compose.ui.unit.Dp
+    itemSize: Dp
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -318,7 +308,7 @@ private fun NavigationItemLabel(label: String, color: Color) {
  */
 sealed class BottomNavItem(val route: String, val icon: Int, val title: String) {
     object Home : BottomNavItem(route = Screen.HomeScreen.route, icon = R.drawable.home_, title = "Home")
-    object Offers : BottomNavItem(Screen.OffersScreen.route, icon = R.drawable.explore_ic, title = "Offers")
+    object Offers : BottomNavItem(Screen.AllOffersScreen.route, icon = R.drawable.explore_ic, title = "Offers")
     object Trips : BottomNavItem(Screen.TripManagementScreen.route, icon = R.drawable.receipt_ic, title = "My Trips")
     object Search : BottomNavItem(Screen.SearchFlightScreen.route, icon = R.drawable.search, title = "Search")
     object SettingsScreen : BottomNavItem(Screen.SettingsScreen.route, icon = R.drawable.settings, title = "Settings")
@@ -332,7 +322,7 @@ sealed class BottomNavItem(val route: String, val icon: Int, val title: String) 
 @Composable
 fun EnhancedFlightBottomNavigationBarPreview() {
     val mockNotifications = mapOf(
-        Screen.OffersScreen.route to 3,
+        Screen.AllOffersScreen.route to 3,
         Screen.TripManagementScreen.route to 7
     )
 

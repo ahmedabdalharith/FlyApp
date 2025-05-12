@@ -72,13 +72,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
 import com.example.flyapp.ui.theme.components.FlightTopAppBar
 import com.example.flyapp.ui.theme.navigition.Screen
-import com.example.flyapp.ui.theme.utils.formatDate
+import com.example.flyapp.ui.theme.theme.DarkNavyBlue
+import com.example.flyapp.ui.theme.theme.DeepBlue
+import com.example.flyapp.ui.theme.theme.GoldColor
+import com.example.flyapp.ui.theme.theme.MediumBlue
+import com.example.flyapp.ui.utils.formatDate
 
-// Define the gold color used in the welcome screen
-val GoldColor = Color(0xFFDAA520)
-val DarkNavyBlue = Color(0xFF0A1A35)
-val MediumBlue = Color(0xFF0E3B6F)
-val DeepBlue = Color(0xFF082147)
+
 
 @Composable
 fun SearchFlightScreen(navController: NavController) {

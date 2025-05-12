@@ -1,4 +1,4 @@
-package com.example.flyapp.ui.theme.utils
+package com.example.flyapp.ui.utils
 
 import java.text.SimpleDateFormat
 import java.util.Date

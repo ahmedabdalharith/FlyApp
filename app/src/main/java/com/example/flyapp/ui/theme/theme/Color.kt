@@ -96,3 +96,10 @@ val PremiumGradient = Brush.horizontalGradient(
         GoldPremium.copy(alpha = 0.7f)
     )
 )
+
+// Define the gold color used in the welcome screen
+val GoldColor = Color(0xFFDAA520)
+val DarkNavyBlue = Color(0xFF0A1A35)
+val MediumBlue = Color(0xFF0E3B6F)
+val DeepBlue = Color(0xFF082147)
+

@@ -66,6 +66,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.ui.theme.components.FlightTopAppBar
 import com.example.flyapp.ui.theme.navigition.Screen
+import com.example.flyapp.ui.theme.theme.DarkNavyBlue
+import com.example.flyapp.ui.theme.theme.DeepBlue
+import com.example.flyapp.ui.theme.theme.GoldColor
+import com.example.flyapp.ui.theme.theme.MediumBlue
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -370,8 +374,8 @@ fun AllOffersScreen(
         ) {
             // Top app bar
             FlightTopAppBar(
-                textOne = "All",
-                textTwo = "Offers",
+                textOne = "ALL ",
+                textTwo = "OFFERS",
                 navController = navController)
 
             Text(

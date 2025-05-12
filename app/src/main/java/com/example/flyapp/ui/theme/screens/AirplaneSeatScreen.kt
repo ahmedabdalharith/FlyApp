@@ -1,16 +1,22 @@
 package com.example.flyapp.ui.theme.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +31,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +58,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,38 +71,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
 import com.example.flyapp.ui.theme.components.FlightTopAppBar
+import com.example.flyapp.ui.data.models.Seat
+import com.example.flyapp.ui.data.models.SeatStatus
 import com.example.flyapp.ui.theme.navigition.Screen
+import com.example.flyapp.ui.theme.theme.DarkNavyBlue
+import com.example.flyapp.ui.theme.theme.DeepBlue
+import com.example.flyapp.ui.theme.theme.GoldColor
+import com.example.flyapp.ui.theme.theme.MediumBlue
 import kotlinx.coroutines.delay
 
-// Seat status definitions
-enum class SeatStatus {
-    AVAILABLE,
-    SELECTED,
-    OCCUPIED,
-    FIRST_CLASS,
-    BUSINESS_CLASS,
-    ECONOMY_CLASS
-}
 
-data class Seat(
-    val id: String,
-    var status: SeatStatus,
-    var type: SeatStatus = SeatStatus.ECONOMY_CLASS
-)
-// Make sure your FlightStatus data class includes a progress property
-data class FlightStatusMap(
-    val flightNumber: String,
-    val departure: String,
-    val destination: String,
-    val departureTime: String,
-    val arrivalTime: String,
-    val date: String,
-    val status: FlightStatusType,
-    val gate: String,
-    val terminal: String,
-    val boardingTime: String,
-    val progress: Float = 0f  // Make sure this line exists
-)
+
 @Composable
 fun AirplaneSeatsScreen(
     navController: NavHostController,
@@ -294,9 +284,14 @@ fun AirplaneSeatsScreen(
             ) {
                 SelectedSeatsCard(
                     selectedSeats = selectedSeats,
-                    totalPrice = totalPrice
                 )
             }
+
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // baggage card
+            BaggageCard(selectedSeats)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -948,16 +943,20 @@ fun LegendItem(
 @Composable
 fun SelectedSeatsCard(
     selectedSeats: List<String>,
-    totalPrice: Long
+    modifier: Modifier = Modifier,
 ) {
+    val categorizedSeats = categorizeSeatsByClass(selectedSeats)
+    val totalPrice = calculateTotalPrice(categorizedSeats)
+
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(
             containerColor = DarkNavyBlue.copy(alpha = 0.8f)
         ),
-        border = CardDefaults.outlinedCardBorder().copy(
+        border = BorderStroke(
+            width = 1.dp,
             brush = Brush.linearGradient(listOf(GoldColor.copy(alpha = 0.7f), GoldColor.copy(alpha = 0.3f)))
         ),
         shape = RoundedCornerShape(12.dp)
@@ -967,117 +966,131 @@ fun SelectedSeatsCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painterResource(R.drawable.seat),
-                        contentDescription = "Selected seats",
-                        tint = GoldColor,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "SELECTED SEATS (${selectedSeats.size})",
-                        color = GoldColor,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+            HeaderSection(selectedSeats.size, totalPrice)
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = GoldColor.copy(alpha = 0.3f)
+            )
+
+            // عرض المقاعد حسب الفئة مع إظهار المجموع الفرعي لكل فئة
+            categorizedSeats.forEach { (category, seats, price) ->
+                if (seats.isNotEmpty()) {
+                    SeatCategorySection(
+                        title = category,
+                        seats = seats,
+                        pricePerSeat = price
                     )
                 }
-
-                Text(
-                    text = "€$totalPrice",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
             }
 
+            // إجمالي المبلغ
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 12.dp),
                 color = GoldColor.copy(alpha = 0.3f)
             )
 
-            // Display selected seats by category
-            val firstClassSeats = selectedSeats.filter {
-                val row = it.substring(0, it.length - 1).toInt()
-                row <= 2
-            }.sorted()
+            TotalAmountSection(totalPrice)
+        }
+    }
+}
 
-            val businessClassSeats = selectedSeats.filter {
-                val row = it.substring(0, it.length - 1).toInt()
-                row in 3..7
-            }.sorted()
-
-            val economyClassSeats = selectedSeats.filter {
-                val row = it.substring(0, it.length - 1).toInt()
-                row > 7
-            }.sorted()
-
-            // First class seats section
-            if (firstClassSeats.isNotEmpty()) {
-                SeatCategorySection(
-                    title = "First Class",
-                    seats = firstClassSeats,
-                    pricePerSeat = 450
-                )
-            }
-
-            // Business class seats section
-            if (businessClassSeats.isNotEmpty()) {
-                SeatCategorySection(
-                    title = "Business Class",
-                    seats = businessClassSeats,
-                    pricePerSeat = 250
-                )
-            }
-
-            // Economy class seats section
-            if (economyClassSeats.isNotEmpty()) {
-                SeatCategorySection(
-                    title = "Economy Class",
-                    seats = economyClassSeats,
-                    pricePerSeat = 120
-                )
-            }
-
-            // Total amount row
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 12.dp),
-                color = GoldColor.copy(alpha = 0.3f)
+@Composable
+private fun HeaderSection(seatCount: Int, totalPrice: Long) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painterResource(R.drawable.seat),
+                contentDescription = "Selected seats",
+                tint = GoldColor,
+                modifier = Modifier.size(24.dp)
             )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "TOTAL AMOUNT",
-                    color = GoldColor,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = "€$totalPrice",
-                    color = GoldColor,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            // Note about price
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Prices include all taxes and fees",
-                fontSize = 12.sp,
-                color = Color.White.copy(alpha = 0.6f),
-                modifier = Modifier.padding(top = 8.dp)
+                text = "SELECTED SEATS ($seatCount)",
+                color = GoldColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = formatPrice(totalPrice),
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            // إضافة إجمالي عدد المقاعد المحددة
+            Text(
+                text = "$seatCount selected",
+                color = Color.White.copy(alpha = 0.7f),
+                fontSize = 12.sp
             )
         }
     }
+}
+
+
+private fun calculateTotalPrice(categorizedSeats: List<Triple<String, List<String>, Int>>): Long {
+    return categorizedSeats.sumOf { (_, seats, pricePerSeat) ->
+        seats.size * pricePerSeat.toLong()
+    }
+}
+
+@Composable
+private fun TotalAmountSection(totalPrice: Long) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            Text(
+                text = "TOTAL AMOUNT",
+                color = GoldColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            // إضافة تفاصيل عدد المقاعد
+            Text(
+                text = "All selected seats",
+                fontSize = 12.sp,
+                color = Color.White.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = formatPrice(totalPrice),
+                color = GoldColor,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            // إضافة نسبة الضريبة المضمنة
+            Text(
+                text = "inc. VAT",
+                fontSize = 12.sp,
+                color = Color.White.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
+
+    // ملاحظة حول السعر
+    Text(
+        text = "Prices include all taxes and fees",
+        fontSize = 12.sp,
+        color = Color.White.copy(alpha = 0.6f),
+        modifier = Modifier.padding(top = 8.dp)
+    )
 }
 
 @Composable
@@ -1091,12 +1104,25 @@ fun SeatCategorySection(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        Text(
-            text = title,
-            color = Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+            // إضافة عدد المقاعد في الفئة
+            Text(
+                text = "${seats.size} seat(s)",
+                color = Color.White.copy(alpha = 0.6f),
+                fontSize = 12.sp
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -1104,23 +1130,499 @@ fun SeatCategorySection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Seats
+            // المقاعد
             Text(
                 text = seats.joinToString(", "),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp
             )
 
-            // Price calculation
+            // حساب السعر
+            val subtotal = seats.size * pricePerSeat
             Text(
-                text = "${seats.size} × €$pricePerSeat = €${seats.size * pricePerSeat}",
+                text = "${seats.size} × ${formatPrice(pricePerSeat.toLong())} = ${formatPrice(subtotal.toLong())}",
                 color = Color.White.copy(alpha = 0.8f),
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
 }
 
+// تحسين: استخراج منطق تصنيف المقاعد إلى دالة منفصلة
+private fun categorizeSeatsByClass(selectedSeats: List<String>): List<Triple<String, List<String>, Int>> {
+    // تصنيف المقاعد حسب الفئة
+    val firstClassSeats = selectedSeats.filter {
+        val row = it.substring(0, it.length - 1).toIntOrNull() ?: 0
+        row <= 2
+    }.sorted()
+
+    val businessClassSeats = selectedSeats.filter {
+        val row = it.substring(0, it.length - 1).toIntOrNull() ?: 0
+        row in 3..7
+    }.sorted()
+
+    val economyClassSeats = selectedSeats.filter {
+        val row = it.substring(0, it.length - 1).toIntOrNull() ?: 0
+        row > 7
+    }.sorted()
+
+    return listOf(
+        Triple("First Class", firstClassSeats, 450),
+        Triple("Business Class", businessClassSeats, 250),
+        Triple("Economy Class", economyClassSeats, 120)
+    )
+}
+
+
+private fun formatPrice(price: Long): String {
+    return "€$price"
+}
+
+@Composable
+fun BaggageCard(
+    selectedSeats: List<String>
+) {
+    var baggageCount by remember { mutableIntStateOf(0) }
+    var baggagePrice by remember { mutableLongStateOf(0L) }
+    var isExpanded by remember { mutableStateOf(false) }
+
+    // Animation for expansion
+    val cardElevation by animateDpAsState(
+        targetValue = if (isExpanded) 16.dp else 8.dp,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 300f),
+        label = "card_elevation"
+    )
+
+    // Animation for card border
+    val borderWidth by animateFloatAsState(
+        targetValue = if (isExpanded) 1.5f else 1f,
+        animationSpec = tween(durationMillis = 500),
+        label = "border_width"
+    )
+
+    // Baggage pricing (example)
+    val standardBaggagePrice = 35L
+    val maxBaggagePerPassenger = 3
+
+    // Launch animation after a delay
+    LaunchedEffect(selectedSeats) {
+        delay(300)
+        isExpanded = true
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .shadow(cardElevation, RoundedCornerShape(12.dp))
+            .clickable { isExpanded = !isExpanded },
+        colors = CardDefaults.cardColors(
+            containerColor = DarkNavyBlue.copy(alpha = 0.85f)
+        ),
+        border = CardDefaults.outlinedCardBorder().copy(
+            brush = Brush.linearGradient(
+                colors = listOf(
+                    GoldColor.copy(alpha = 0.8f),
+                    GoldColor.copy(alpha = 0.4f),
+                    GoldColor.copy(alpha = 0.8f)
+                )
+            ),
+            width = borderWidth.dp
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Background animation circles
+            Canvas(modifier = Modifier.matchParentSize()) {
+                val canvasWidth = size.width
+                val canvasHeight = size.height
+
+                // Draw circular pattern in background
+                val pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f), 0f)
+                for (i in 1..3) {
+                    drawCircle(
+                        color = GoldColor.copy(alpha = 0.05f),
+                        radius = canvasHeight / 4f * i / 3f,
+                        center = Offset(canvasWidth * 0.8f, canvasHeight * 0.3f),
+                        style = Stroke(width = 1f, pathEffect = pathEffect)
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Animated icon
+                        val iconRotation by animateFloatAsState(
+                            targetValue = if (isExpanded) 0f else -30f,
+                            animationSpec = spring(dampingRatio = 0.6f, stiffness = 100f),
+                            label = "icon_rotation"
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(
+                                            GoldColor.copy(alpha = 0.2f),
+                                            Color.Transparent
+                                        )
+                                    ),
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                                .padding(8.dp)
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.baggage),
+                                contentDescription = "Baggage selection",
+                                tint = GoldColor,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center)
+                                    .graphicsLayer {
+                                        rotationZ = iconRotation
+                                    }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Column {
+                            Text(
+                                text = "ADD BAGGAGE",
+                                color = GoldColor,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+
+                            AnimatedVisibility(visible = isExpanded) {
+                                Text(
+                                    text = "Select baggage for each passenger",
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    fontSize = 12.sp,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                        }
+                    }
+
+                    // Animated price
+                    val priceScale by animateFloatAsState(
+                        targetValue = if (baggagePrice > 0) 1.2f else 1f,
+                        animationSpec = tween(300),
+                        label = "price_scale"
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                if (baggagePrice > 0)
+                                    Brush.horizontalGradient(
+                                        colors = listOf(
+                                            GoldColor.copy(alpha = 0.3f),
+                                            DarkNavyBlue.copy(alpha = 0.6f)
+                                        )
+                                    )
+                                else
+                                    Brush.horizontalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            Color.Transparent
+                                        )
+                                    )                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "€${baggagePrice}",
+                            color = if (baggagePrice > 0) GoldColor else Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.graphicsLayer {
+                                scaleX = priceScale
+                                scaleY = priceScale
+                            }
+                        )
+                    }
+                }
+
+                AnimatedVisibility(visible = isExpanded) {
+                    Column {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            color = GoldColor.copy(alpha = 0.3f)
+                        )
+
+                        // Baggage selection per passenger
+                        selectedSeats.forEachIndexed { index, seat ->
+                            BaggagePassengerRow(
+                                passengerNumber = index + 1,
+                                seat = seat,
+                                standardBaggagePrice = standardBaggagePrice,
+                                maxBaggagePerPassenger = maxBaggagePerPassenger,
+                                onBaggageCountChanged = { count, price ->
+                                    baggageCount += count
+                                    baggagePrice += price
+                                }
+                            )
+
+                            if (index < selectedSeats.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 12.dp),
+                                    color = GoldColor.copy(alpha = 0.2f)
+                                )
+                            }
+                        }
+
+                        // Note about baggage
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = "Information",
+                                tint = GoldColor.copy(alpha = 0.7f),
+                                modifier = Modifier.size(16.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Text(
+                                text = "Each passenger can add up to $maxBaggagePerPassenger bags (€$standardBaggagePrice each)",
+                                fontSize = 12.sp,
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BaggagePassengerRow(
+    passengerNumber: Int,
+    seat: String,
+    standardBaggagePrice: Long,
+    maxBaggagePerPassenger: Int,
+    onBaggageCountChanged: (Int, Long) -> Unit
+) {
+    var baggageCount by remember { mutableStateOf(0) }
+
+    // Animation for row highlighting
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            baggageCount > 0 -> GoldColor.copy(alpha = 0.1f)
+            else -> Color.Transparent
+        },
+        animationSpec = tween(durationMillis = 300),
+        label = "row_background"
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(backgroundColor)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Passenger info with seat icon
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Seat indicator
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                GoldColor.copy(alpha = 0.3f),
+                                DarkNavyBlue.copy(alpha = 0.6f)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = seat,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column {
+                Text(
+                    text = "Passenger $passengerNumber",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
+                AnimatedVisibility(visible = baggageCount > 0) {
+                    Text(
+                        text = "$baggageCount bag${if (baggageCount > 1) "s" else ""} · €${baggageCount * standardBaggagePrice}",
+                        color = GoldColor.copy(alpha = 0.8f),
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+
+        // Baggage counter with improved buttons
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Decrease button with interaction animation
+            BaggageButton(
+                icon = painterResource(R.drawable.minus_ic),
+                description = "Decrease baggage",
+                enabled = baggageCount > 0,
+                onClick = {
+                    if (baggageCount > 0) {
+                        baggageCount--
+                        onBaggageCountChanged(-1, -standardBaggagePrice)
+                    }
+                }
+            )
+
+            // Baggage count with animation
+            val countScale by animateFloatAsState(
+                targetValue = if (baggageCount == maxBaggagePerPassenger) 1.2f else 1f,
+                animationSpec = spring(dampingRatio = 0.3f),
+                label = "count_scale"
+            )
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.width(40.dp)
+            ) {
+                Text(
+                    text = baggageCount.toString(),
+                    color = when {
+                        baggageCount == maxBaggagePerPassenger -> GoldColor
+                        baggageCount > 0 -> Color.White
+                        else -> Color.White.copy(alpha = 0.6f)
+                    },
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = countScale
+                        scaleY = countScale
+                    }
+                )
+            }
+            // Increase button with interaction animation
+            BaggageButton(
+                icon = painterResource(R.drawable.add_ic),
+                description = "Increase baggage",
+                enabled = baggageCount < maxBaggagePerPassenger,
+                onClick = {
+                    if (baggageCount < maxBaggagePerPassenger) {
+                        baggageCount++
+                        onBaggageCountChanged(1, standardBaggagePrice)
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun BaggageButton(
+    icon: Painter,
+    description: String,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    // Button animation
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.85f else 1f,
+        animationSpec = spring(dampingRatio = 0.3f, stiffness = 300f),
+        label = "button_scale"
+    )
+
+    // Button color animation
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isPressed && enabled -> GoldColor.copy(alpha = 0.3f)
+            enabled -> Color.Transparent
+            else -> Color.DarkGray.copy(alpha = 0.2f)
+        },
+        label = "button_color"
+    )
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(36.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clip(RoundedCornerShape(6.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = if (enabled) {
+                        listOf(
+                            GoldColor.copy(alpha = 0.8f),
+                            GoldColor.copy(alpha = 0.4f)
+                        )
+                    } else {
+                        listOf(
+                            Color.Gray.copy(alpha = 0.4f),
+                            Color.Gray.copy(alpha = 0.2f)
+                        )
+                    }
+                ),
+                shape = RoundedCornerShape(6.dp)
+            )
+            .background(backgroundColor)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                onClick = onClick
+            )
+    ) {
+        Icon(
+            icon,
+            contentDescription = description,
+            tint = if (enabled) GoldColor else Color.Gray.copy(alpha = 0.5f),
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun AirplaneSeatsScreenPreview() {

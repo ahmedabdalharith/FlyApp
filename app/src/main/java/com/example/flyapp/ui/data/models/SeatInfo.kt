@@ -1,4 +1,4 @@
-package com.example.flyapp.ui.theme.data.models
+package com.example.flyapp.ui.data.models
 
 data class SeatInfo(
     val id: String,

@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Button
@@ -64,6 +65,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
 import com.example.flyapp.ui.theme.components.FlightTopAppBar
 import com.example.flyapp.ui.theme.navigition.Screen
+import com.example.flyapp.ui.theme.theme.DarkNavyBlue
+import com.example.flyapp.ui.theme.theme.DeepBlue
+import com.example.flyapp.ui.theme.theme.GoldColor
+import com.example.flyapp.ui.theme.theme.MediumBlue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -162,7 +167,7 @@ fun LoginScreen(navController: NavHostController) {
                 ) {
                     // Logo and title
                     Image(
-                        painter = painterResource(id = R.drawable.myplane),
+                        painter = painterResource(id = R.drawable.plane_real),
                         contentDescription = "FlyApp Logo",
                         modifier = Modifier
                             .size(100.dp)
@@ -309,7 +314,7 @@ fun LoginScreen(navController: NavHostController) {
                                 ) {
                                     if (rememberMe) {
                                         Icon(
-                                            painter = painterResource(id = R.drawable.check_circle),
+                                            Icons.Default.Check,
                                             contentDescription = "Remember me",
                                             tint = DarkNavyBlue,
                                             modifier = Modifier.size(16.dp)
@@ -421,19 +426,19 @@ fun LoginScreen(navController: NavHostController) {
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         // Google sign in
-                        SocialSignInButton(
+                        SocialButton(
                             icon = R.drawable.google,
                             onClick = { /* Implement Google sign in */ }
                         )
 
                         // Facebook sign in
-                        SocialSignInButton(
+                        SocialButton(
                             icon = R.drawable.facebook_ic,
                             onClick = { /* Implement Facebook sign in */ }
                         )
 
                         // Apple sign in
-                        SocialSignInButton(
+                        SocialButton(
                             icon = R.drawable.apple_1ic,
                             onClick = { /* Implement Apple sign in */ }
                         )
@@ -496,27 +501,6 @@ fun LoginScreen(navController: NavHostController) {
     }
 }
 
-@Composable
-fun SocialSignInButton(
-    icon: Int,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(56.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(DarkNavyBlue.copy(alpha = 0.8f))
-            .border(1.dp, GoldColor.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = icon),
-            contentDescription = "Social Sign In",
-            modifier = Modifier.size(24.dp)
-        )
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

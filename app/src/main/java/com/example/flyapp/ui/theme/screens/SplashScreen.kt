@@ -28,6 +28,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
 import com.example.flyapp.ui.theme.navigition.Screen
+import com.example.flyapp.ui.theme.theme.DarkNavyBlue
+import com.example.flyapp.ui.theme.theme.DeepBlue
+import com.example.flyapp.ui.theme.theme.GoldColor
+import com.example.flyapp.ui.theme.theme.MediumBlue
 import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
@@ -300,9 +304,8 @@ private fun ExplosionParticles(
     Canvas(modifier = Modifier.fillMaxSize()) {
         val center = Offset(size.width / 2, size.height / 2)
 
-        // رسم جزيئات الانفجار
+
         particles.forEachIndexed { index, particle ->
-            // تعيين الموضع الأولي إذا لم يتم تعيينه
             if (particle.position == Offset.Zero) {
                 // حساب زوايا عشوائية للتشتت
                 val angle = Random.nextDouble(0.0, 2 * Math.PI).toFloat()
@@ -372,7 +375,6 @@ private fun AppNameWithTagline(textAlpha: Float) {
     )
 }
 
-// فئة حالة التحريك لتنظيم أفضل
 private class SplashAnimationState(
     val logoScale: Animatable<Float, AnimationVector1D>,
     val logoAlpha: Animatable<Float, AnimationVector1D>,

@@ -1,5 +1,6 @@
 package com.example.flyapp.ui.theme.screens
 
+import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -69,6 +70,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.flyapp.R
 import com.example.flyapp.ui.theme.components.FlightTopAppBar
 import com.example.flyapp.ui.theme.navigition.Screen
+import com.example.flyapp.ui.theme.theme.DarkNavyBlue
+import com.example.flyapp.ui.theme.theme.DeepBlue
+import com.example.flyapp.ui.theme.theme.GoldColor
+import com.example.flyapp.ui.theme.theme.MediumBlue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -84,7 +89,7 @@ fun SignUpScreen(navController: NavHostController) {
     var termsAccepted by remember { mutableStateOf(false) }
 
     // Field validation states
-    val isEmailValid = email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    val isEmailValid = email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val isFullNameValid = fullName.length >= 3
     val isPasswordValid = password.length >= 8
     val doPasswordsMatch = password == confirmPassword && password.isNotEmpty()
@@ -171,13 +176,12 @@ fun SignUpScreen(navController: NavHostController) {
                 ) {
                     // Logo and title
                     Image(
-                        painter = painterResource(id = R.drawable.myplane),
+                        painter = painterResource(id = R.drawable.plane_real),
                         contentDescription = "FlyApp Logo",
                         modifier = Modifier
-                            .size(80.dp)
-                            .padding(bottom = 8.dp)
+                            .size(120.dp)
+                            .padding(bottom = 8.dp),
                     )
-
                     Text(
                         text = "CREATE ACCOUNT",
                         color = GoldColor,
@@ -197,6 +201,35 @@ fun SignUpScreen(navController: NavHostController) {
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        // Full Name field
+                        OutlinedTextField(
+                            value = fullName,
+                            onValueChange = { fullName = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Full Name") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Person",
+                                    tint = GoldColor
+                                )
+                            },
+                            isError = fullName.isNotEmpty() && !isFullNameValid,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = DarkNavyBlue.copy(alpha = 0.7f),
+                                unfocusedContainerColor = DarkNavyBlue.copy(alpha = 0.7f),
+                                focusedLabelColor = GoldColor,
+                                unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedBorderColor = GoldColor,
+                                unfocusedBorderColor = GoldColor.copy(alpha = 0.5f),
+                                errorBorderColor = Color.Red.copy(alpha = 0.7f),
+                                errorLabelColor = Color.Red.copy(alpha = 0.7f),
+
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        )
                         // Email field
                         OutlinedTextField(
                             value = email,
@@ -227,34 +260,6 @@ fun SignUpScreen(navController: NavHostController) {
                             shape = RoundedCornerShape(12.dp)
                         )
 
-                        // Full Name field
-                        OutlinedTextField(
-                            value = fullName,
-                            onValueChange = { fullName = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Full Name") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Person",
-                                    tint = GoldColor
-                                )
-                            },
-                            isError = fullName.isNotEmpty() && !isFullNameValid,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = DarkNavyBlue.copy(alpha = 0.7f),
-                                unfocusedContainerColor = DarkNavyBlue.copy(alpha = 0.7f),
-                                focusedLabelColor = GoldColor,
-                                unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedBorderColor = GoldColor,
-                                unfocusedBorderColor = GoldColor.copy(alpha = 0.5f),
-                                errorBorderColor = Color.Red.copy(alpha = 0.7f),
-                                errorLabelColor = Color.Red.copy(alpha = 0.7f)
-                            ),
-                            shape = RoundedCornerShape(12.dp)
-                        )
 
                         // Password field
                         OutlinedTextField(
@@ -465,19 +470,19 @@ fun SignUpScreen(navController: NavHostController) {
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         // Google sign up
-                        SocialSignUpButton(
+                        SocialButton(
                             icon = R.drawable.google,
                             onClick = { /* Implement Google sign up */ }
                         )
 
                         // Facebook sign up
-                        SocialSignUpButton(
+                        SocialButton(
                             icon = R.drawable.facebook_ic,
                             onClick = { /* Implement Facebook sign up */ }
                         )
 
                         // Apple sign up
-                        SocialSignUpButton(
+                        SocialButton(
                             icon = R.drawable.apple_1ic,
                             onClick = { /* Implement Apple sign up */ }
                         )
@@ -555,7 +560,7 @@ fun SignUpScreen(navController: NavHostController) {
 }
 
 @Composable
-fun SocialSignUpButton(
+fun SocialButton(
     icon: Int,
     onClick: () -> Unit
 ) {
@@ -568,10 +573,9 @@ fun SocialSignUpButton(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
+        Image(
             painter = painterResource(id = icon),
             contentDescription = "Social Sign Up",
-            tint = Color.White,
             modifier = Modifier.size(24.dp)
         )
     }
